@@ -1,0 +1,187 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versión a liberar (ej: v2.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    name: Validar Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Validar tag de versión
+        run: |
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "✅ Tag de versión válido"
+          elif [[ "${{ github.event.inputs.version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "✅ Versión manual válida"
+          else
+            echo "❌ Formato de versión inválido"
+            exit 1
+          fi
+
+      - name: Ejecutar tests
+        run: |
+          cd scripts
+          bash setup_terminal.sh --dry-run --yes
+
+  create-checksums:
+    name: Crear Checksums
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Crear checksums
+        run: |
+          mkdir -p dist
+
+          # Crear tarball del proyecto
+          tar -czf dist/start-bash-debian.tar.gz \
+            scripts/ \
+            config/ \
+            README.md \
+            LICENSE \
+            CONTRIBUTING.md \
+            CHANGELOG.md
+
+          # Generar checksums
+          cd dist
+          sha256sum start-bash-debian.tar.gz > checksums.txt
+          sha512sum start-bash-debian.tar.gz >> checksums.txt
+
+          echo "✅ Checksums generados:"
+          cat checksums.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: dist/
+
+  create-release:
+    name: Crear GitHub Release
+    runs-on: ubuntu-latest
+    needs: create-checksums
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: dist/
+
+      - name: Extraer versión
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Versión: $VERSION"
+
+      - name: Generar Release Notes
+        id: release_notes
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Extraer changelog para esta versión
+          if [ -f CHANGELOG.md ]; then
+            NOTES=$(awk "/## \[$VERSION\]/,/## \[/" CHANGELOG.md | head -n -1)
+          else
+            NOTES="Release $VERSION"
+          fi
+
+          # Guardar en archivo
+          cat > release_notes.md << EOF
+          # 🚀 Terminal Setup $VERSION
+
+          $NOTES
+
+          ## 📦 Instalación Rápida
+
+          \`\`\`bash
+          # Descargar e instalar
+          curl -fsSL https://github.com/emilioaray-dev/start-bash-debian/archive/$VERSION.tar.gz -o setup.tar.gz
+          tar -xzf setup.tar.gz
+          cd start-bash-debian-*/scripts
+          sudo bash setup_terminal.sh
+          \`\`\`
+
+          ## 🔧 Instalación Local (sin sudo)
+
+          \`\`\`bash
+          bash setup_terminal.sh --local
+          \`\`\`
+
+          ## 📋 Checksums
+
+          \`\`\`
+          $(cat dist/checksums.txt)
+          \`\`\`
+
+          ## 🐛 Reportar Issues
+
+          https://github.com/emilioaray-dev/start-bash-debian/issues
+          EOF
+
+          echo "notes_file=release_notes.md" >> $GITHUB_OUTPUT
+
+      - name: Crear Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Terminal Setup ${{ steps.version.outputs.version }}
+          body_path: ${{ steps.release_notes.outputs.notes_file }}
+          draft: false
+          prerelease: false
+          files: |
+            dist/start-bash-debian.tar.gz
+            dist/checksums.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  announce:
+    name: Anunciar Release
+    runs-on: ubuntu-latest
+    needs: create-release
+    if: success()
+
+    steps:
+      - name: Extraer versión
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Notificación de éxito
+        run: |
+          echo "🎉 Release ${{ steps.version.outputs.version }} creado exitosamente"
+          echo "📦 Disponible en: https://github.com/emilioaray-dev/start-bash-debian/releases/tag/${{ steps.version.outputs.version }}"

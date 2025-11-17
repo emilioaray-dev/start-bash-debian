@@ -1,0 +1,342 @@
+name: CI - Test & Validate
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  shellcheck:
+    name: ShellCheck - Análisis Estático
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Ejecutar ShellCheck en scripts
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './scripts'
+          severity: warning
+          check_together: 'yes'
+
+  test-debian-11:
+    name: Test en Debian 11 (Bullseye)
+    runs-on: ubuntu-latest
+    container:
+      image: debian:11
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Instalar dependencias básicas
+        run: |
+          apt-get update
+          apt-get install -y sudo curl git make
+
+      - name: Test instalación (dry-run)
+        run: |
+          cd scripts
+          bash setup_terminal.sh --dry-run --yes
+
+      - name: Test instalación local (sin sudo)
+        run: |
+          cd scripts
+          bash setup_terminal.sh --local --yes
+
+      - name: Verificar instalación
+        run: |
+          cd scripts
+          bash verify.sh
+
+      - name: Test desinstalación (dry-run)
+        run: |
+          cd scripts
+          bash uninstall.sh --dry-run --yes
+
+  test-debian-12:
+    name: Test en Debian 12 (Bookworm)
+    runs-on: ubuntu-latest
+    container:
+      image: debian:12
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Instalar dependencias básicas
+        run: |
+          apt-get update
+          apt-get install -y sudo curl git make
+
+      - name: Test instalación (dry-run)
+        run: |
+          cd scripts
+          bash setup_terminal.sh --dry-run --yes
+
+      - name: Test instalación local
+        run: |
+          cd scripts
+          bash setup_terminal.sh --local --yes
+
+      - name: Verificar instalación
+        run: |
+          cd scripts
+          bash verify.sh
+
+  test-ubuntu-2004:
+    name: Test en Ubuntu 20.04
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Test instalación (dry-run)
+        run: |
+          cd scripts
+          bash setup_terminal.sh --dry-run --yes
+
+      - name: Test instalación local
+        run: |
+          cd scripts
+          bash setup_terminal.sh --local --yes
+
+      - name: Verificar instalación
+        run: |
+          cd scripts
+          bash verify.sh --verbose
+
+      - name: Test desinstalación
+        run: |
+          cd scripts
+          bash uninstall.sh --yes
+
+  test-ubuntu-2204:
+    name: Test en Ubuntu 22.04
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Test instalación (dry-run)
+        run: |
+          cd scripts
+          bash setup_terminal.sh --dry-run --yes
+
+      - name: Test instalación local
+        run: |
+          cd scripts
+          bash setup_terminal.sh --local --yes
+
+      - name: Verificar instalación
+        run: |
+          cd scripts
+          bash verify.sh
+
+  test-ubuntu-2404:
+    name: Test en Ubuntu 24.04
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Test instalación (dry-run)
+        run: |
+          cd scripts
+          bash setup_terminal.sh --dry-run --yes
+
+      - name: Test instalación local
+        run: |
+          cd scripts
+          bash setup_terminal.sh --local --yes
+
+      - name: Verificar instalación
+        run: |
+          cd scripts
+          bash verify.sh
+
+  test-system-install:
+    name: Test Instalación con Sudo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Test instalación de sistema (dry-run)
+        run: |
+          cd scripts
+          sudo bash setup_terminal.sh --system --dry-run --yes
+
+      - name: Test instalación de sistema real
+        run: |
+          cd scripts
+          sudo bash setup_terminal.sh --system --yes
+
+      - name: Verificar instalación
+        run: |
+          cd scripts
+          bash verify.sh --verbose
+
+      - name: Test que neofetch funciona
+        run: neofetch --stdout
+
+      - name: Test que starship funciona
+        run: starship --version
+
+      - name: Test desinstalación completa
+        run: |
+          cd scripts
+          sudo bash uninstall.sh --remove-config --yes
+
+  test-macos-latest:
+    name: Test en macOS (Latest)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Test instalación (dry-run)
+        run: |
+          cd scripts
+          bash setup_terminal.sh --dry-run --yes
+
+      - name: Test instalación en macOS
+        run: |
+          cd scripts
+          bash setup_terminal.sh --yes
+
+      - name: Verificar instalación
+        run: |
+          cd scripts
+          bash verify.sh --verbose
+
+      - name: Test que neofetch funciona
+        run: neofetch --stdout
+
+      - name: Test que starship funciona
+        run: starship --version
+
+      - name: Test desinstalación
+        run: |
+          cd scripts
+          bash uninstall.sh --yes
+
+  test-macos-13:
+    name: Test en macOS 13 (Ventura)
+    runs-on: macos-13
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Test instalación
+        run: |
+          cd scripts
+          bash setup_terminal.sh --yes
+
+      - name: Verificar instalación
+        run: |
+          cd scripts
+          bash verify.sh
+
+  test-macos-12:
+    name: Test en macOS 12 (Monterey)
+    runs-on: macos-12
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Test instalación
+        run: |
+          cd scripts
+          bash setup_terminal.sh --yes
+
+      - name: Verificar instalación
+        run: |
+          cd scripts
+          bash verify.sh
+
+  validate-configs:
+    name: Validar Configuraciones
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Instalar Starship para validación
+        run: |
+          curl -sS https://starship.rs/install.sh | sh -s -- --yes
+
+      - name: Validar configuración de Starship
+        run: |
+          export STARSHIP_CONFIG=./config/starship.toml
+          starship config > /dev/null && echo "✅ Configuración de Starship válida"
+
+      - name: Verificar sintaxis de Neofetch config
+        run: |
+          if [ -f config/neofetch.conf ]; then
+            bash -n config/neofetch.conf && echo "✅ Sintaxis de Neofetch válida"
+          fi
+
+  security-scan:
+    name: Escaneo de Seguridad
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Buscar secretos con Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  documentation:
+    name: Validar Documentación
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Verificar README existe
+        run: |
+          test -f README.md && echo "✅ README encontrado"
+
+      - name: Verificar CONTRIBUTING existe
+        run: |
+          test -f CONTRIBUTING.md && echo "✅ CONTRIBUTING encontrado" || echo "⚠️ CONTRIBUTING no encontrado"
+
+      - name: Verificar LICENSE existe
+        run: |
+          test -f LICENSE && echo "✅ LICENSE encontrado" || echo "⚠️ LICENSE no encontrado"
+
+      - name: Lint Markdown
+        uses: actionshub/markdownlint@main
+        with:
+          path: "*.md"
+          ignore: "node_modules"
+
+  summary:
+    name: Resumen de CI
+    runs-on: ubuntu-latest
+    needs: [shellcheck, test-debian-11, test-debian-12, test-ubuntu-2004, test-ubuntu-2204, test-ubuntu-2404, test-system-install, test-macos-latest, test-macos-13, test-macos-12, validate-configs]
+    if: always()
+
+    steps:
+      - name: Verificar resultados
+        run: |
+          echo "🎉 Todos los tests de CI completados"
+          echo "Estado: ${{ job.status }}"
