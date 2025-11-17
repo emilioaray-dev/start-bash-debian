@@ -63,13 +63,23 @@ Ideal para:
 
 ### 🍎 macOS
 
-```bash
-# Opción 1: Instalación directa (Recomendada para macOS)
-curl -fsSL https://raw.githubusercontent.com/emilioaray-dev/start-bash-debian/main/scripts/setup_terminal.sh | bash
+**Opción 1: Instalación directa (Recomendada para macOS)**
 
-# Opción 2: Clonar repositorio
+```bash
+curl -fsSL https://raw.githubusercontent.com/emilioaray-dev/start-bash-debian/main/scripts/setup_terminal.sh | bash
+```
+
+**Opción 2: Clonar repositorio**
+
+```bash
 git clone https://github.com/emilioaray-dev/start-bash-debian.git
+```
+
+```bash
 cd start-bash-debian/scripts
+```
+
+```bash
 ./setup_terminal.sh
 ```
 
@@ -77,44 +87,71 @@ cd start-bash-debian/scripts
 
 ### 🐧 Linux (Debian/Ubuntu)
 
-```bash
-# Instalación de sistema (requiere sudo)
-curl -fsSL https://raw.githubusercontent.com/emilioaray-dev/start-bash-debian/main/scripts/setup_terminal.sh | sudo bash
+**Instalación de sistema (requiere sudo)**
 
-# Instalación local (sin sudo)
+```bash
+curl -fsSL https://raw.githubusercontent.com/emilioaray-dev/start-bash-debian/main/scripts/setup_terminal.sh | sudo bash
+```
+
+**Instalación local (sin sudo)**
+
+```bash
 curl -fsSL https://raw.githubusercontent.com/emilioaray-dev/start-bash-debian/main/scripts/setup_terminal.sh | bash -s -- --local
 ```
 
 ### Opción 2: Instalación Manual (Más Seguro)
 
+**1. Clonar el repositorio**
+
 ```bash
-# 1. Clonar el repositorio
 git clone https://github.com/emilioaray-dev/start-bash-debian.git
+```
+
+```bash
 cd start-bash-debian
+```
 
-# 2. Dar permisos de ejecución
+**2. Dar permisos de ejecución**
+
+```bash
 chmod +x scripts/*.sh
+```
 
-# 3. Ejecutar instalación
+**3. Ejecutar instalación**
+
+```bash
 cd scripts
+```
 
-# Instalación de sistema
+**Instalación de sistema**
+
+```bash
 sudo ./setup_terminal.sh
+```
 
-# O instalación local
+**O instalación local**
+
+```bash
 ./setup_terminal.sh --local
 ```
 
 ### Opción 3: Descarga Directa
 
+**Descargar script**
+
 ```bash
-# Descargar script
 wget https://raw.githubusercontent.com/emilioaray-dev/start-bash-debian/main/scripts/setup_terminal.sh
+```
 
-# Dar permisos
+**Dar permisos**
+
+```bash
 chmod +x setup_terminal.sh
+```
 
-# Ejecutar
+**Ejecutar**
+
+```bash
 sudo ./setup_terminal.sh
 ```
 
@@ -146,26 +183,45 @@ sudo ./setup_terminal.sh
 
 ### Ejemplos de Uso
 
+**Instalación estándar con confirmación**
+
 ```bash
-# Instalación estándar con confirmación
 sudo ./setup_terminal.sh
+```
 
-# Instalación automática sin confirmaciones
+**Instalación automática sin confirmaciones**
+
+```bash
 sudo ./setup_terminal.sh --yes
+```
 
-# Instalación local (sin sudo)
+**Instalación local (sin sudo)**
+
+```bash
 ./setup_terminal.sh --local
+```
 
-# Simular instalación (no hace cambios)
+**Simular instalación (no hace cambios)**
+
+```bash
 ./setup_terminal.sh --dry-run
+```
 
-# Instalar solo Starship
+**Instalar solo Starship**
+
+```bash
 sudo ./setup_terminal.sh --skip-neofetch
+```
 
-# Instalación verbose para debugging
+**Instalación verbose para debugging**
+
+```bash
 sudo ./setup_terminal.sh --verbose
+```
 
-# Verificar instalación existente
+**Verificar instalación existente**
+
+```bash
 ./setup_terminal.sh --verify
 ```
 
@@ -177,17 +233,29 @@ sudo ./setup_terminal.sh --verbose
 
 ```bash
 cd scripts
+```
 
-# Desinstalación estándar (mantiene configuraciones)
+**Desinstalación estándar (mantiene configuraciones)**
+
+```bash
 sudo ./uninstall.sh
+```
 
-# Desinstalación completa (elimina también configuraciones)
+**Desinstalación completa (elimina también configuraciones)**
+
+```bash
 sudo ./uninstall.sh --remove-config
+```
 
-# Desinstalar solo Starship
+**Desinstalar solo Starship**
+
+```bash
 sudo ./uninstall.sh --skip-neofetch
+```
 
-# Simular desinstalación
+**Simular desinstalación**
+
+```bash
 ./uninstall.sh --dry-run
 ```
 
@@ -210,14 +278,23 @@ sudo ./uninstall.sh --skip-neofetch
 
 ```bash
 cd scripts
+```
 
-# Verificación estándar
+**Verificación estándar**
+
+```bash
 ./verify.sh
+```
 
-# Verificación verbose
+**Verificación verbose**
+
+```bash
 ./verify.sh --verbose
+```
 
-# Verificar sin tests de funcionalidad
+**Verificar sin tests de funcionalidad**
+
+```bash
 ./verify.sh --skip-tests
 ```
 
@@ -266,10 +343,16 @@ start-bash-debian/
 
 ### Starship
 
-El script instala una configuración optimizada de Starship. Puedes editarla:
+El script instala una configuración optimizada de Starship. Puedes editarla con nano:
 
 ```bash
 nano ~/.config/starship.toml
+```
+
+O con tu editor favorito:
+
+```bash
+vim ~/.config/starship.toml
 ```
 
 **Características de la configuración incluida:**
@@ -295,46 +378,61 @@ nano ~/.config/neofetch/config.conf
 
 ### Problema: Error de permisos
 
-```bash
+```
 Error: Could not open lock file /var/lib/apt/lists/lock
 ```
 
-**Solución:**
-```bash
-# Usar sudo para instalación de sistema
-sudo ./setup_terminal.sh
+**Solución 1: Usar sudo para instalación de sistema**
 
-# O usar instalación local
+```bash
+sudo ./setup_terminal.sh
+```
+
+**Solución 2: Usar instalación local**
+
+```bash
 ./setup_terminal.sh --local
 ```
 
 ### Problema: Starship no aparece después de instalar
 
-**Solución:**
-```bash
-# Recargar configuración del shell
-source ~/.bashrc  # Para Bash
-source ~/.zshrc   # Para Zsh
+**Solución 1: Recargar configuración de Bash**
 
-# O simplemente cierra y abre una nueva terminal
+```bash
+source ~/.bashrc
 ```
+
+**Solución 2: Recargar configuración de Zsh**
+
+```bash
+source ~/.zshrc
+```
+
+**Solución 3: Cerrar y abrir una nueva terminal**
 
 ### Problema: Comando no encontrado después de instalación local
 
-**Solución:**
+**Solución: Agregar ~/.local/bin al PATH**
+
 ```bash
-# Asegúrate de que ~/.local/bin está en tu PATH
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+```
+
+```bash
 source ~/.bashrc
 ```
 
 ### Ver logs detallados
 
-```bash
-# Los logs se guardan automáticamente en:
-/tmp/setup_terminal_YYYYMMDD_HHMMSS.log
+Los logs se guardan automáticamente en:
 
-# Ver último log
+```
+/tmp/setup_terminal_YYYYMMDD_HHMMSS.log
+```
+
+**Ver último log**
+
+```bash
 ls -lt /tmp/setup_terminal_*.log | head -n1 | awk '{print $NF}' | xargs cat
 ```
 
@@ -353,14 +451,21 @@ El proyecto incluye tests automatizados que se ejecutan en:
 
 ### Ejecutar tests localmente
 
+**Test de instalación dry-run**
+
 ```bash
-# Test de instalación dry-run
 ./scripts/setup_terminal.sh --dry-run
+```
 
-# Verificación
+**Verificación**
+
+```bash
 ./scripts/verify.sh
+```
 
-# ShellCheck (si está instalado)
+**ShellCheck (si está instalado)**
+
+```bash
 shellcheck scripts/*.sh scripts/lib/*.sh
 ```
 
@@ -372,11 +477,27 @@ shellcheck scripts/*.sh scripts/lib/*.sh
 
 ### Proceso de Contribución
 
-1. Fork el proyecto
-2. Crea tu rama de feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+**1. Fork el proyecto**
+
+**2. Crea tu rama de feature**
+
+```bash
+git checkout -b feature/AmazingFeature
+```
+
+**3. Commit tus cambios**
+
+```bash
+git commit -m 'Add some AmazingFeature'
+```
+
+**4. Push a la rama**
+
+```bash
+git push origin feature/AmazingFeature
+```
+
+**5. Abre un Pull Request**
 
 ---
 
