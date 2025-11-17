@@ -50,7 +50,19 @@ echo "✅ Starship instalado con éxito."
 # --- PASO 4: Configurar Starship en .bashrc ---
 echo -e "\n4. Configurando Starship en ~/.bashrc..."
 STARSHIP_INIT_LINE='eval "$(starship init bash)"'
+NEOFETCH_CALL_LINE='neofetch'
 
+# 4.1. Agregar la llamada a Neofetch (¡NUEVO!)
+if ! grep -q "$NEOFETCH_CALL_LINE" ~/.bashrc; then
+    echo "" >> ~/.bashrc
+    echo "# Display system info on startup (Neofetch)" >> ~/.bashrc
+    echo "$NEOFETCH_CALL_LINE" >> ~/.bashrc
+    echo "✅ Llamada a Neofetch agregada a ~/.bashrc."
+else
+    echo "ℹ️ Neofetch ya estaba configurado para ejecución automática."
+fi
+
+# 4.2. Agregar la inicialización de Starship
 if ! grep -q "$STARSHIP_INIT_LINE" ~/.bashrc; then
     echo "" >> ~/.bashrc
     echo "# Starship Prompt Initialization" >> ~/.bashrc
@@ -63,4 +75,4 @@ fi
 # --- PASO 5: Aplicar los cambios inmediatamente ---
 echo -e "\n5. Aplicando los cambios de ~/.bashrc a la sesión actual..."
 source ~/.bashrc
-echo "✅ Script finalizado. Ejecute 'neofetch' o abra una nueva terminal."
+echo "✅ Script finalizado. ¡Su terminal ya está configurada!"
