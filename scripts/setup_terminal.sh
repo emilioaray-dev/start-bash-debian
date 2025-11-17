@@ -600,7 +600,14 @@ configure_neofetch() {
     local neofetch_comment="# Display system info on startup (Neofetch)"
 
     if [[ "$DRY_RUN" == "false" ]]; then
-        if ! grep -q "$neofetch_line" "$rc_file" 2>/dev/null; then
+        # Asegurar que el archivo existe
+        if [[ ! -f "$rc_file" ]]; then
+            touch "$rc_file"
+            log_debug "Archivo creado: $rc_file"
+        fi
+
+        # Verificar si neofetch ya está configurado
+        if ! grep -q "^neofetch" "$rc_file" 2>/dev/null; then
             {
                 echo ""
                 echo "$neofetch_comment"
@@ -646,6 +653,13 @@ configure_starship() {
     local starship_comment="# Starship Prompt Initialization"
 
     if [[ "$DRY_RUN" == "false" ]]; then
+        # Asegurar que el archivo existe
+        if [[ ! -f "$rc_file" ]]; then
+            touch "$rc_file"
+            log_debug "Archivo creado: $rc_file"
+        fi
+
+        # Verificar si starship ya está configurado
         if ! grep -q "starship init" "$rc_file" 2>/dev/null; then
             {
                 echo ""
@@ -673,6 +687,12 @@ add_to_path_if_needed() {
         log_step "Agregando $dir al PATH..."
 
         if [[ "$DRY_RUN" == "false" ]]; then
+            # Asegurar que el archivo existe
+            if [[ ! -f "$rc_file" ]]; then
+                touch "$rc_file"
+                log_debug "Archivo creado: $rc_file"
+            fi
+
             local path_line="export PATH=\"$dir:\$PATH\""
             local path_comment="# Local bin directory"
 
