@@ -7,19 +7,243 @@
 #              para instalación local y de sistema
 # ==============================================================================
 
-set -euo pipefail  # Exit on error, undefined vars, pipe failures
+set -eo pipefail  # Exit on error, pipe failures (nounset disabled para soportar ejecución vía pipe)
 
 # ==============================================================================
 # Configuración Global
 # ==============================================================================
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Detectar si se ejecuta desde archivo o vía pipe
+if [[ -n "${BASH_SOURCE[0]:-}" && "${BASH_SOURCE[0]}" != "${0}" ]]; then
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+elif [[ -n "${0}" && "${0}" != "bash" && "${0}" != "-bash" ]]; then
+    SCRIPT_DIR="$(cd "$(dirname "${0}")" && pwd)"
+else
+    # Ejecutado vía pipe - usar directorio actual o temporal
+    SCRIPT_DIR="$(pwd)"
+fi
+
 LIB_DIR="${SCRIPT_DIR}/lib"
 
-# Sourcing de bibliotecas
-source "${LIB_DIR}/colors.sh"
-source "${LIB_DIR}/logger.sh"
-source "${LIB_DIR}/utils.sh"
+# Intentar cargar bibliotecas si existen, sino usar funciones inline
+if [[ -f "${LIB_DIR}/colors.sh" && -f "${LIB_DIR}/logger.sh" && -f "${LIB_DIR}/utils.sh" ]]; then
+    # Modo repositorio - cargar bibliotecas
+    source "${LIB_DIR}/colors.sh"
+    source "${LIB_DIR}/logger.sh"
+    source "${LIB_DIR}/utils.sh"
+else
+    # Modo standalone - definir funciones críticas inline
+    echo "⚠️  Ejecutando en modo standalone (sin bibliotecas lib/)"
+    echo "    Algunas funciones avanzadas podrían no estar disponibles"
+    echo ""
+
+    # Funciones básicas de colores
+    COLOR_RESET='\033[0m'
+    COLOR_RED='\033[0;31m'
+    COLOR_GREEN='\033[0;32m'
+    COLOR_YELLOW='\033[0;33m'
+    COLOR_BLUE='\033[0;34m'
+    COLOR_CYAN='\033[0;36m'
+    COLOR_BOLD='\033[1m'
+
+    print_error() { echo -e "${COLOR_RED}${COLOR_BOLD}❌ $*${COLOR_RESET}" >&2; }
+    print_success() { echo -e "${COLOR_GREEN}${COLOR_BOLD}✅ $*${COLOR_RESET}"; }
+    print_warning() { echo -e "${COLOR_YELLOW}${COLOR_BOLD}⚠️  $*${COLOR_RESET}"; }
+    print_info() { echo -e "${COLOR_BLUE}${COLOR_BOLD}ℹ️  $*${COLOR_RESET}"; }
+    print_step() { echo -e "${COLOR_CYAN}${COLOR_BOLD}▶️  $*${COLOR_RESET}"; }
+    print_header() {
+        echo -e "\n${COLOR_BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${COLOR_RESET}"
+        echo -e "${COLOR_BOLD}  $*${COLOR_RESET}"
+        echo -e "${COLOR_BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${COLOR_RESET}\n"
+    }
+    print_subheader() { echo -e "\n${COLOR_CYAN}${COLOR_BOLD}── $* ──${COLOR_RESET}\n"; }
+
+    # Funciones básicas de logging
+    LOG_FILE="/tmp/setup_terminal_$(date +%Y%m%d_%H%M%S).log"
+    LOG_LEVEL="${LOG_LEVEL:-INFO}"
+
+    _log() {
+        local level="$1"
+        shift
+        local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+        echo "[$timestamp] [$level] $*" >> "$LOG_FILE" 2>/dev/null || true
+    }
+
+    log_error() { _log "ERROR" "$@"; print_error "$@"; }
+    log_success() { _log "INFO" "SUCCESS: $*"; print_success "$@"; }
+    log_warn() { _log "WARN" "$@"; print_warning "$@"; }
+    log_info() { _log "INFO" "$@"; print_info "$@"; }
+    log_step() { _log "INFO" "STEP: $*"; print_step "$@"; }
+    log_header() { _log "INFO" "HEADER: $*"; print_header "$@"; }
+    log_subheader() { _log "INFO" "SUBHEADER: $*"; print_subheader "$@"; }
+    log_debug() { _log "DEBUG" "$@"; }
+    log_command() { log_debug "Ejecutando comando: $*"; }
+    log_env() { _log "DEBUG" "=== Variables de Entorno ==="; }
+    print_log_summary() {
+        if [[ -f "$LOG_FILE" ]]; then
+            echo -e "\n${COLOR_BOLD}Archivo de log:${COLOR_RESET} $LOG_FILE"
+        fi
+    }
+
+    # Funciones utilitarias básicas
+    get_project_version() { echo "2.0.0"; }
+    get_os_type() {
+        case "$(uname -s)" in
+            Darwin*) echo "macos" ;;
+            Linux*) echo "linux" ;;
+            *) echo "unknown" ;;
+        esac
+    }
+    is_macos() { [[ "$(get_os_type)" == "macos" ]]; }
+    is_linux() { [[ "$(get_os_type)" == "linux" ]]; }
+    get_distro_name() {
+        if is_macos; then
+            echo "macos"
+        elif [[ -f /etc/os-release ]]; then
+            . /etc/os-release
+            echo "$ID"
+        else
+            echo "unknown"
+        fi
+    }
+    get_distro_version() {
+        if is_macos; then
+            sw_vers -productVersion 2>/dev/null || echo "unknown"
+        elif [[ -f /etc/os-release ]]; then
+            . /etc/os-release
+            echo "${VERSION_ID:-unknown}"
+        else
+            echo "unknown"
+        fi
+    }
+    is_debian_based() {
+        local distro=$(get_distro_name)
+        [[ "$distro" =~ ^(debian|ubuntu|linuxmint|pop|kali)$ ]]
+    }
+    command_exists() { command -v "$1" &> /dev/null; }
+    is_root() { [[ $EUID -eq 0 ]]; }
+    has_sudo() {
+        command -v sudo &> /dev/null && sudo -n true 2>/dev/null
+    }
+    get_privilege_cmd() {
+        if is_root; then
+            echo ""
+        elif has_sudo; then
+            echo "sudo"
+        else
+            return 1
+        fi
+    }
+    check_privileges() {
+        local mode="${1:-system}"
+        if [[ "$mode" == "system" ]]; then
+            if ! is_root && ! has_sudo; then
+                log_error "Este script requiere privilegios de superusuario"
+                log_info "Opciones:"
+                log_info "  1. Ejecuta: sudo bash <(curl ...)"
+                log_info "  2. Usa modo local: bash <(curl ...) --local"
+                return 1
+            fi
+            if ! is_root && has_sudo; then
+                log_warn "Se requieren privilegios sudo. Es posible que se te pida la contraseña."
+                sudo -v || return 1
+            fi
+        fi
+        return 0
+    }
+    check_internet() {
+        curl -s --connect-timeout 5 --head "https://github.com" &> /dev/null || \
+        curl -s --connect-timeout 5 --head "https://google.com" &> /dev/null
+    }
+    check_disk_space() {
+        local required_mb="${1:-100}"
+        local available=$(df -m . | awk 'NR==2 {print $4}')
+        if [[ $available -lt $required_mb ]]; then
+            log_error "Espacio en disco insuficiente. Requerido: ${required_mb}MB, Disponible: ${available}MB"
+            return 1
+        fi
+        return 0
+    }
+    safe_mkdir() {
+        local dir="$1"
+        [[ ! -d "$dir" ]] && mkdir -p "$dir"
+    }
+    backup_file() {
+        local file="$1"
+        [[ -f "$file" ]] && cp "$file" "${file}.backup.$(date +%Y%m%d_%H%M%S)"
+    }
+    get_user_shell() { basename "$SHELL"; }
+    get_shell_rc_file() {
+        case "$(get_user_shell)" in
+            bash) echo "$HOME/.bashrc" ;;
+            zsh) echo "$HOME/.zshrc" ;;
+            fish) echo "$HOME/.config/fish/config.fish" ;;
+            *) echo "$HOME/.profile" ;;
+        esac
+    }
+    ask_yes_no() {
+        local question="$1"
+        local default="${2:-n}"
+        local response
+        if [[ "$default" == "y" ]]; then
+            printf "%s [S/n]: " "$question"
+        else
+            printf "%s [s/N]: " "$question"
+        fi
+        read -r response
+        response=${response,,}
+        [[ -z "$response" ]] && response="$default"
+        [[ "$response" =~ ^(s|y|si|yes)$ ]]
+    }
+    run_cmd() {
+        local description="$1"
+        shift
+        log_debug "Ejecutando: $*"
+        if eval "$@"; then
+            log_debug "✓ $description"
+            return 0
+        else
+            local exit_code=$?
+            log_error "✗ $description (código de salida: $exit_code)"
+            return $exit_code
+        fi
+    }
+    setup_error_handling() {
+        trap 'log_error "Script interrumpido"; print_log_summary; exit 1' INT TERM ERR
+    }
+    show_system_info() {
+        log_subheader "Información del Sistema"
+        echo "Sistema Operativo: $(get_distro_name) $(get_distro_version)"
+        echo "Kernel: $(uname -r)"
+        echo "Arquitectura: $(uname -m)"
+        echo "Usuario: $USER"
+        echo "Shell: $(get_user_shell)"
+        echo ""
+    }
+    has_homebrew() { command -v brew &> /dev/null; }
+    install_homebrew() {
+        if ! is_macos; then
+            log_error "Homebrew solo se puede instalar en macOS"
+            return 1
+        fi
+        if has_homebrew; then
+            log_info "Homebrew ya está instalado"
+            return 0
+        fi
+        log_step "Instalando Homebrew..."
+        if [[ "$DRY_RUN" == "false" ]]; then
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            if [[ -f "/opt/homebrew/bin/brew" ]]; then
+                eval "$(/opt/homebrew/bin/brew shellenv)"
+            elif [[ -f "/usr/local/bin/brew" ]]; then
+                eval "$(/usr/local/bin/brew shellenv)"
+            fi
+            log_success "Homebrew instalado correctamente"
+        else
+            log_info "[DRY-RUN] Se instalaría Homebrew"
+        fi
+    }
+fi
 
 # Obtener versión del proyecto
 VERSION=$(get_project_version)

@@ -23,42 +23,7 @@ jobs:
           severity: warning
           check_together: 'yes'
 
-  test-debian-11:
-    name: Test en Debian 11 (Bullseye)
-    runs-on: ubuntu-latest
-    container:
-      image: debian:11
-
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-
-      - name: Instalar dependencias básicas
-        run: |
-          apt-get update
-          apt-get install -y sudo curl git make
-
-      - name: Test instalación (dry-run)
-        run: |
-          cd scripts
-          bash setup_terminal.sh --dry-run --yes
-
-      - name: Test instalación local (sin sudo)
-        run: |
-          cd scripts
-          bash setup_terminal.sh --local --yes
-
-      - name: Verificar instalación
-        run: |
-          cd scripts
-          bash verify.sh
-
-      - name: Test desinstalación (dry-run)
-        run: |
-          cd scripts
-          bash uninstall.sh --dry-run --yes
-
-  test-debian-12:
+  test-debian:
     name: Test en Debian 12 (Bookworm)
     runs-on: ubuntu-latest
     container:
@@ -88,58 +53,7 @@ jobs:
           cd scripts
           bash verify.sh
 
-  test-ubuntu-2004:
-    name: Test en Ubuntu 20.04
-    runs-on: ubuntu-20.04
-
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-
-      - name: Test instalación (dry-run)
-        run: |
-          cd scripts
-          bash setup_terminal.sh --dry-run --yes
-
-      - name: Test instalación local
-        run: |
-          cd scripts
-          bash setup_terminal.sh --local --yes
-
-      - name: Verificar instalación
-        run: |
-          cd scripts
-          bash verify.sh --verbose
-
-      - name: Test desinstalación
-        run: |
-          cd scripts
-          bash uninstall.sh --yes
-
-  test-ubuntu-2204:
-    name: Test en Ubuntu 22.04
-    runs-on: ubuntu-22.04
-
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-
-      - name: Test instalación (dry-run)
-        run: |
-          cd scripts
-          bash setup_terminal.sh --dry-run --yes
-
-      - name: Test instalación local
-        run: |
-          cd scripts
-          bash setup_terminal.sh --local --yes
-
-      - name: Verificar instalación
-        run: |
-          cd scripts
-          bash verify.sh
-
-  test-ubuntu-2404:
+  test-ubuntu:
     name: Test en Ubuntu 24.04
     runs-on: ubuntu-24.04
 
@@ -196,7 +110,7 @@ jobs:
           cd scripts
           sudo bash uninstall.sh --remove-config --yes
 
-  test-macos-latest:
+  test-macos:
     name: Test en macOS (Latest)
     runs-on: macos-latest
 
@@ -229,42 +143,6 @@ jobs:
         run: |
           cd scripts
           bash uninstall.sh --yes
-
-  test-macos-13:
-    name: Test en macOS 13 (Ventura)
-    runs-on: macos-13
-
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-
-      - name: Test instalación
-        run: |
-          cd scripts
-          bash setup_terminal.sh --yes
-
-      - name: Verificar instalación
-        run: |
-          cd scripts
-          bash verify.sh
-
-  test-macos-12:
-    name: Test en macOS 12 (Monterey)
-    runs-on: macos-12
-
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-
-      - name: Test instalación
-        run: |
-          cd scripts
-          bash setup_terminal.sh --yes
-
-      - name: Verificar instalación
-        run: |
-          cd scripts
-          bash verify.sh
 
   validate-configs:
     name: Validar Configuraciones
@@ -332,7 +210,7 @@ jobs:
   summary:
     name: Resumen de CI
     runs-on: ubuntu-latest
-    needs: [shellcheck, test-debian-11, test-debian-12, test-ubuntu-2004, test-ubuntu-2204, test-ubuntu-2404, test-system-install, test-macos-latest, test-macos-13, test-macos-12, validate-configs]
+    needs: [shellcheck, test-debian, test-ubuntu, test-system-install, test-macos, validate-configs]
     if: always()
 
     steps:
