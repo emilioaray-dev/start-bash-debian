@@ -8,30 +8,41 @@ check_success() {
     fi
 }
 
-echo "--- 🛠️ Instalación de Neofetch y Starship en Debian ---"
+echo "--- 🛠️ Instalación de Neofetch y Starship en Debian (Versión robusta) ---"
 
-# --- PASO 1: Habilitar Repositorios Contrib y Non-Free ---
-echo -e "\n1. Habilitando repositorios 'contrib' y 'non-free'..."
-# Usa 'sed' para añadir 'contrib non-free' a todas las líneas 'main' en sources.list
-# Esto es necesario para encontrar 'neofetch' en instalaciones mínimas de Debian.
-sed -i 's/main/main contrib non-free/g' /etc/apt/sources.list
-check_success "Fallo al modificar /etc/apt/sources.list"
-
-# --- PASO 2: Actualizar e Instalar Neofetch (y curl) ---
-echo -e "\n2. Actualizando listas de paquetes e instalando Neofetch..."
-
-# Actualiza la lista de paquetes para incluir los nuevos repositorios
+# --- PASO 1: Instalación de Dependencias Esenciales ---
+echo -e "\n1. Instalando dependencias (git, make, curl)..."
+# Usamos apt update antes de instalar cualquier cosa
 apt update
 check_success "No se pudo actualizar la lista de paquetes."
 
-# Instala Neofetch (ahora debe encontrarse) y curl
-apt install neofetch curl -y
-check_success "Fallo al instalar Neofetch y curl."
+# Instalamos git, make (para Neofetch source) y curl (para Starship)
+apt install git make curl -y
+check_success "Fallo al instalar las dependencias básicas."
+echo "✅ Dependencias instaladas con éxito."
+
+# --- PASO 2: Instalación de Neofetch (Desde el repositorio de Git) ---
+echo -e "\n2. Clonando e instalando Neofetch desde GitHub..."
+
+# Directorio temporal para la compilación
+NEOFETCH_DIR="/tmp/neofetch"
+rm -rf "$NEOFETCH_DIR"
+
+# Clonar el repositorio y moverse a él
+git clone https://github.com/dylanaraps/neofetch "$NEOFETCH_DIR"
+check_success "Fallo al clonar el repositorio de Neofetch."
+
+cd "$NEOFETCH_DIR"
+# Instalar el programa en /usr/local/bin
+make install
+check_success "Fallo al compilar e instalar Neofetch."
+cd ~
+
 echo "✅ Neofetch instalado con éxito."
 
-# --- PASO 3: Instalar Starship (Usando el script oficial) ---
+# --- PASO 3: Instalación de Starship (Usando el script oficial) ---
 echo -e "\n3. Descargando e instalando Starship..."
-# El script debe ejecutarse sin sudo ya que el comando principal se ejecuta como root/sudo
+# Ejecutado con permisos de root
 curl -sS https://starship.rs/install.sh | sh
 check_success "Fallo al instalar Starship."
 echo "✅ Starship instalado con éxito."
@@ -52,4 +63,4 @@ fi
 # --- PASO 5: Aplicar los cambios inmediatamente ---
 echo -e "\n5. Aplicando los cambios de ~/.bashrc a la sesión actual..."
 source ~/.bashrc
-echo "✅ Script finalizado. ¡Su terminal ya está configurada!"
+echo "✅ Script finalizado. Ejecute 'neofetch' o abra una nueva terminal."
