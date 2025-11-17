@@ -106,11 +106,11 @@ echo ""
 if command -v starship &> /dev/null; then
     echo -e "${BLUE}⭐ Validando configuración de Starship...${NC}"
     export STARSHIP_CONFIG=./config/starship.toml
-    if timeout 3 starship config &> /dev/null; then
+    if timeout 3 starship print-config &> /dev/null; then
         echo -e "${GREEN}✅${NC} Configuración de Starship válida"
     else
         echo -e "${RED}❌${NC} Configuración de Starship inválida"
-        starship config 2>&1 | head -10
+        starship print-config 2>&1 | head -10
         ((ERRORS++))
     fi
     echo ""

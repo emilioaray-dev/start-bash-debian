@@ -159,7 +159,7 @@ jobs:
       - name: Validar configuración de Starship
         run: |
           export STARSHIP_CONFIG=./config/starship.toml
-          starship config > /dev/null && echo "✅ Configuración de Starship válida"
+          starship print-config > /dev/null && echo "✅ Configuración de Starship válida"
 
       - name: Verificar sintaxis de Neofetch config
         run: |
