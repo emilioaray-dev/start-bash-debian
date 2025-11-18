@@ -509,8 +509,11 @@ version_compare() {
         return 0
     fi
 
-    local IFS=.
-    local i ver1=($version1) ver2=($version2)
+    local i
+    local ver1=()
+    local ver2=()
+    IFS='.' read -ra ver1 <<< "$version1"
+    IFS='.' read -ra ver2 <<< "$version2"
 
     for ((i=0; i<${#ver1[@]} || i<${#ver2[@]}; i++)); do
         if [[ ${ver1[i]:-0} -gt ${ver2[i]:-0} ]]; then

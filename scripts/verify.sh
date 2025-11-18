@@ -621,9 +621,12 @@ check_for_issues() {
     # Verificar conflictos de PATH - more resilient approach
     local neofetch_count=0
     # Count neofetch binaries in PATH without potentially failing find commands
-    local IFS=':'  # Change field separator temporarily
-    local path_dirs=($PATH)  # Split PATH into array
-    unset IFS  # Restore default field separator
+    # Use mapfile to safely split PATH avoiding word splitting issues
+    local path_dirs=()
+    local old_ifs="$IFS"
+    IFS=':'
+    mapfile -t path_dirs <<< "$PATH"
+    IFS="$old_ifs"
 
     for dir in "${path_dirs[@]}"; do
         # Skip empty paths
@@ -642,9 +645,12 @@ check_for_issues() {
 
     local starship_count=0
     # Count starship binaries in PATH without potentially failing find commands
-    local IFS=':'  # Change field separator temporarily
-    local path_dirs=($PATH)  # Split PATH into array
-    unset IFS  # Restore default field separator
+    # Use mapfile to safely split PATH avoiding word splitting issues
+    local path_dirs=()
+    local old_ifs="$IFS"
+    IFS=':'
+    mapfile -t path_dirs <<< "$PATH"
+    IFS="$old_ifs"
 
     for dir in "${path_dirs[@]}"; do
         # Skip empty paths
