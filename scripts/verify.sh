@@ -124,15 +124,24 @@ verify_neofetch_installation() {
     # Verificar si está instalado y se puede ejecutar
     log_debug "DEBUG: Checking if neofetch is installed"
     local neofetch_found=0
+    log_debug "DEBUG: Set neofetch_found=0"
+
     # Use the most basic and safe method to check for command existence
+    log_debug "DEBUG: About to run command -v neofetch"
     if command -v neofetch >/dev/null 2>&1; then
+        log_debug "DEBUG: command -v found neofetch"
         neofetch_found=1
     else
+        log_debug "DEBUG: command -v did not find neofetch, trying direct path"
         # Si no se encuentra vía command -v, intentar con la ruta directa de instalación local
         if [[ -n "${HOME:-}" ]] && [[ -x "${HOME}/.local/bin/neofetch" ]]; then
+            log_debug "DEBUG: Found neofetch at direct path"
             neofetch_found=1
+        else
+            log_debug "DEBUG: Neofetch not found at direct path either"
         fi
     fi
+    log_debug "DEBUG: Finished checking, neofetch_found=$neofetch_found"
 
     if [[ $neofetch_found -eq 1 ]]; then
         local version=""
