@@ -95,7 +95,7 @@ verify_neofetch_installation() {
     log_subheader "Verificando Neofetch"
 
     # Verificar si está instalado y se puede ejecutar
-    if command_exists neofetch; then
+    if command_exists_enhanced neofetch; then
         local version
         # Verificar si timeout está disponible
         if command -v timeout &> /dev/null; then
@@ -148,7 +148,7 @@ verify_starship_installation() {
     log_subheader "Verificando Starship"
 
     # Verificar si está instalado y se puede ejecutar
-    if command_exists starship; then
+    if command_exists_enhanced starship; then
         local version
         # Verificar si timeout está disponible
         if command -v timeout &> /dev/null; then
@@ -212,7 +212,7 @@ verify_shell_configuration() {
     fi
 
     # Verificar Neofetch en RC
-    if command_exists neofetch; then
+    if command_exists_enhanced neofetch; then
         if grep -q "neofetch" "$rc_file"; then
             check_pass "Neofetch configurado en shell"
 
@@ -228,7 +228,7 @@ verify_shell_configuration() {
     fi
 
     # Verificar Starship en RC
-    if command_exists starship; then
+    if command_exists_enhanced starship; then
         local shell
         shell=$(get_user_shell)
 
@@ -281,7 +281,7 @@ verify_configurations() {
     local config_dir="$HOME/.config"
 
     # Verificar configuración de Neofetch
-    if command_exists neofetch; then
+    if command_exists_enhanced neofetch; then
         local neofetch_config="$config_dir/neofetch/config.conf"
 
         if [[ -f "$neofetch_config" ]]; then
@@ -299,7 +299,7 @@ verify_configurations() {
     fi
 
     # Verificar configuración de Starship
-    if command_exists starship; then
+    if command_exists_enhanced starship; then
         local starship_config="$config_dir/starship.toml"
 
         if [[ -f "$starship_config" ]]; then
@@ -333,7 +333,7 @@ run_functionality_tests() {
     log_subheader "Ejecutando Tests de Funcionalidad"
 
     # Test Neofetch
-    if command_exists neofetch; then
+    if command_exists_enhanced neofetch; then
         log_step "Ejecutando Neofetch..."
 
         if command -v timeout &> /dev/null; then
@@ -359,7 +359,7 @@ run_functionality_tests() {
     fi
 
     # Test Starship
-    if command_exists starship; then
+    if command_exists_enhanced starship; then
         log_step "Probando Starship..."
 
         # Verificar que puede generar prompt
@@ -592,6 +592,48 @@ parse_arguments() {
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
     export PATH="$HOME/.local/bin:$PATH"
 fi
+
+# Función auxiliar para encontrar comandos en múltiples ubicaciones posibles
+find_command_path() {
+    local cmd="$1"
+
+    # Primero intentar con el sistema normal de búsqueda
+    local path_result
+    path_result=$(command -v "$cmd" 2>/dev/null) || true
+
+    if [[ -n "$path_result" ]]; then
+        echo "$path_result"
+        return 0
+    fi
+
+    # Si no se encuentra, buscar en ubicaciones comunes donde se instalan localmente
+    local local_paths=(
+        "$HOME/.local/bin/$cmd"
+        "$HOME/.local/bin/$cmd.exe"
+        "/usr/local/bin/$cmd"
+        "/usr/bin/$cmd"
+    )
+
+    for cmd_path in "${local_paths[@]}"; do
+        if [[ -x "$cmd_path" ]]; then
+            echo "$cmd_path"
+            return 0
+        fi
+    done
+
+    # Comando no encontrado
+    return 1
+}
+
+# Función mejorada que maneja mejor la existencia de comandos
+command_exists_enhanced() {
+    local cmd="$1"
+    if find_command_path "$cmd" > /dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
 
 # ==============================================================================
 # Main
