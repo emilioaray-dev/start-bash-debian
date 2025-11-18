@@ -112,14 +112,14 @@ verify_neofetch_installation() {
         local version=""
         # Verificar si timeout está disponible
         if command -v timeout &> /dev/null; then
-            version=$(timeout 10s neofetch --version 2>&1 | head -n1 | grep -v "command not found" || echo "desconocida")
+            version=$(timeout 10s neofetch --version 2>&1 | head -n1 | grep -v "command not found" 2>/dev/null || echo "desconocida")
         else
             # En macOS, se puede usar gtimeout (si está instalado con brew) o ejecutar directamente
             if command -v gtimeout &> /dev/null; then
-                version=$(gtimeout 10s neofetch --version 2>&1 | head -n1 | grep -v "command not found" || echo "desconocida")
+                version=$(gtimeout 10s neofetch --version 2>&1 | head -n1 | grep -v "command not found" 2>/dev/null || echo "desconocida")
             else
                 # Sin timeout, usar ejecución directa pero con limitación de tiempo usando otra técnica
-                version=$( (ulimit -t 10; neofetch --version 2>&1) | head -n1 | grep -v "command not found" || echo "desconocida")
+                version=$( (ulimit -t 10; neofetch --version 2>&1) | head -n1 | grep -v "command not found" 2>/dev/null || echo "desconocida")
             fi
         fi
 
@@ -127,9 +127,9 @@ verify_neofetch_installation() {
         if [[ "$version" == "" || "$version" == "desconocida" ]]; then
             # Intentar obtener versión sin --version (a veces neofetch no soporta --version en ciertos contextos)
             if command -v timeout &> /dev/null; then
-                version=$(timeout 10s neofetch --help 2>&1 | head -n1 | grep -i "neofetch\|version" | head -n1 || echo "desconocida")
+                version=$(timeout 10s neofetch --help 2>&1 | head -n1 | grep -i "neofetch\|version" 2>/dev/null | head -n1 || echo "desconocida")
             else
-                version=$( (ulimit -t 10; neofetch --help 2>&1) | head -n1 | grep -i "neofetch\|version" | head -n1 || echo "desconocida")
+                version=$( (ulimit -t 10; neofetch --help 2>&1) | head -n1 | grep -i "neofetch\|version" 2>/dev/null | head -n1 || echo "desconocida")
             fi
         fi
 
@@ -189,14 +189,14 @@ verify_starship_installation() {
         local version=""
         # Verificar si timeout está disponible
         if command -v timeout &> /dev/null; then
-            version=$(timeout 10s starship --version 2>&1 | head -n1 | grep -v "command not found" || echo "desconocida")
+            version=$(timeout 10s starship --version 2>&1 | head -n1 | grep -v "command not found" 2>/dev/null || echo "desconocida")
         else
             # En macOS, se puede usar gtimeout (si está instalado con brew) o ejecutar directamente
             if command -v gtimeout &> /dev/null; then
-                version=$(gtimeout 10s starship --version 2>&1 | head -n1 | grep -v "command not found" || echo "desconocida")
+                version=$(gtimeout 10s starship --version 2>&1 | head -n1 | grep -v "command not found" 2>/dev/null || echo "desconocida")
             else
                 # Sin timeout, usar ejecución directa pero con limitación de tiempo usando otra técnica
-                version=$( (ulimit -t 10; starship --version 2>&1) | head -n1 | grep -v "command not found" || echo "desconocida")
+                version=$( (ulimit -t 10; starship --version 2>&1) | head -n1 | grep -v "command not found" 2>/dev/null || echo "desconocida")
             fi
         fi
 
@@ -204,9 +204,9 @@ verify_starship_installation() {
         if [[ "$version" == "" || "$version" == "desconocida" ]]; then
             # Intentar obtener versión sin --version (a veces starship no soporta --version en ciertos contextos)
             if command -v timeout &> /dev/null; then
-                version=$(timeout 10s starship --help 2>&1 | head -n1 | grep -i "starship\|version" | head -n1 || echo "desconocida")
+                version=$(timeout 10s starship --help 2>&1 | head -n1 | grep -i "starship\|version" 2>/dev/null | head -n1 || echo "desconocida")
             else
-                version=$( (ulimit -t 10; starship --help 2>&1) | head -n1 | grep -i "starship\|version" | head -n1 || echo "desconocida")
+                version=$( (ulimit -t 10; starship --help 2>&1) | head -n1 | grep -i "starship\|version" 2>/dev/null | head -n1 || echo "desconocida")
             fi
         fi
         check_pass "Starship está instalado: $version"
@@ -416,20 +416,20 @@ run_functionality_tests() {
         case "$shell" in
             bash|zsh)
                 if command -v timeout &> /dev/null; then
-                    if timeout 5s starship prompt &> /dev/null; then
+                    if timeout 5s bash -c 'starship prompt &>/dev/null || true'; then
                         check_pass "Starship genera prompt correctamente"
                     else
                         check_warn "Starship tardó mucho o falló generando prompt"
                     fi
                 elif command -v gtimeout &> /dev/null; then
-                    if gtimeout 5s starship prompt &> /dev/null; then
+                    if gtimeout 5s bash -c 'starship prompt &>/dev/null || true'; then
                         check_pass "Starship genera prompt correctamente"
                     else
                         check_warn "Starship tardó mucho o falló generando prompt"
                     fi
                 else
                     # Sin timeout, ejecutar directamente
-                    if starship prompt &> /dev/null; then
+                    if bash -c 'starship prompt &>/dev/null || true'; then
                         check_pass "Starship genera prompt correctamente"
                     else
                         check_warn "Starship tardó mucho o falló generando prompt"
@@ -443,19 +443,19 @@ run_functionality_tests() {
 
         # Verificar configuración
         if command -v timeout &> /dev/null; then
-            if timeout 5s starship config &> /dev/null; then
+            if timeout 5s bash -c 'starship config &>/dev/null || true'; then
                 log_debug "Starship puede leer su configuración"
             else
                 check_warn "Problema al leer configuración de Starship"
             fi
         elif command -v gtimeout &> /dev/null; then
-            if gtimeout 5s starship config &> /dev/null; then
+            if gtimeout 5s bash -c 'starship config &>/dev/null || true'; then
                 log_debug "Starship puede leer su configuración"
             else
                 check_warn "Problema al leer configuración de Starship"
             fi
         else
-            if starship config &> /dev/null; then
+            if bash -c 'starship config &>/dev/null || true'; then
                 log_debug "Starship puede leer su configuración"
             else
                 check_warn "Problema al leer configuración de Starship"
