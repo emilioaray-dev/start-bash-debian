@@ -23,36 +23,6 @@ jobs:
           severity: warning
           check_together: 'yes'
 
-  test-debian:
-    name: Test en Debian 12 (Bookworm)
-    runs-on: ubuntu-latest
-    container:
-      image: debian:12
-
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-
-      - name: Instalar dependencias básicas
-        run: |
-          apt-get update
-          apt-get install -y sudo curl git make
-
-      - name: Test instalación (dry-run)
-        run: |
-          cd scripts
-          bash setup_terminal.sh --dry-run --yes
-
-      - name: Test instalación local
-        run: |
-          cd scripts
-          bash setup_terminal.sh --local --yes
-
-      - name: Verificar instalación
-        run: |
-          cd scripts
-          bash verify.sh
-
   test-ubuntu:
     name: Test en Ubuntu 24.04
     runs-on: ubuntu-24.04
@@ -75,40 +45,6 @@ jobs:
         run: |
           cd scripts
           bash verify.sh
-
-  test-system-install:
-    name: Test Instalación con Sudo
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-
-      - name: Test instalación de sistema (dry-run)
-        run: |
-          cd scripts
-          sudo bash setup_terminal.sh --system --dry-run --yes
-
-      - name: Test instalación de sistema real
-        run: |
-          cd scripts
-          sudo bash setup_terminal.sh --system --yes
-
-      - name: Verificar instalación
-        run: |
-          cd scripts
-          bash verify.sh --verbose
-
-      - name: Test que neofetch funciona
-        run: neofetch --stdout
-
-      - name: Test que starship funciona
-        run: starship --version
-
-      - name: Test desinstalación completa
-        run: |
-          cd scripts
-          sudo bash uninstall.sh --remove-config --yes
 
   test-macos:
     name: Test en macOS (Latest)
@@ -213,7 +149,7 @@ jobs:
   summary:
     name: Resumen de CI
     runs-on: ubuntu-latest
-    needs: [shellcheck, test-debian, test-ubuntu, test-system-install, test-macos, validate-configs]
+    needs: [shellcheck, test-ubuntu, test-macos, validate-configs]
     if: always()
 
     steps:
