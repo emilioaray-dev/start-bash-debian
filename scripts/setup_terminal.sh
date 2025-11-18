@@ -746,12 +746,28 @@ create_neofetch_config() {
         safe_mkdir "$neofetch_config_dir"
 
         # Generar configuración básica ejecutando neofetch
-        neofetch --config none --print_config > "$neofetch_config_file" 2>/dev/null || {
-            log_warn "No se pudo generar configuración de Neofetch"
-            return 1
-        }
-
-        log_success "Configuración de Neofetch creada en $neofetch_config_file"
+        if timeout 10s neofetch --config none --print_config > "$neofetch_config_file" 2>/dev/null; then
+            log_success "Configuración de Neofetch creada en $neofetch_config_file"
+        else
+            log_warn "No se pudo generar configuración de Neofetch con --print_config"
+            # Opcional: crear una configuración básica alternativa
+            cat > "$neofetch_config_file" << 'EOF'
+# Configuración básica de Neofetch
+print_info() {
+    info title
+    info underline
+    info "OS" distro
+    info "Kernel" kernel
+    info "Uptime" uptime
+    info "Packages" packages
+    info "Shell" shell
+    info "CPU" cpu
+    info "Memory" memory
+    info cols
+}
+EOF
+            log_info "Configuración básica de Neofetch creada como alternativa"
+        fi
     else
         log_info "[DRY-RUN] Se crearía configuración de Neofetch"
     fi
