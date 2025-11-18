@@ -534,6 +534,11 @@ parse_arguments() {
     done
 }
 
+# Agregar ~/.local/bin al PATH si es necesario para que la verificación funcione
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
 # ==============================================================================
 # Main
 # ==============================================================================
