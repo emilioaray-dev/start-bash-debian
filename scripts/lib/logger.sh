@@ -30,7 +30,7 @@ get_log_level_value() {
 
 # Inicializar sistema de logging
 init_logger() {
-    local log_dir="$1"
+    local log_dir="${1:-}"  # Usa valor vacío si no se proporciona argumento
 
     if [[ -n "$log_dir" ]]; then
         LOG_DIR="$log_dir"
