@@ -607,9 +607,11 @@ find_command_path() {
     fi
 
     # Si no se encuentra, buscar en ubicaciones comunes donde se instalan localmente
+    # Incluyendo rutas comunes de instalación local en diferentes entornos
     local local_paths=(
         "$HOME/.local/bin/$cmd"
         "$HOME/.local/bin/$cmd.exe"
+        "/home/runner/.local/bin/$cmd"  # Ruta específica para entornos CI de GitHub Actions
         "/usr/local/bin/$cmd"
         "/usr/bin/$cmd"
     )
@@ -620,6 +622,16 @@ find_command_path() {
             return 0
         fi
     done
+
+    # Si aún no se encuentra, intentar con 'which' como backup (en caso de que esté disponible)
+    if command -v which >/dev/null 2>&1; then
+        local which_result
+        which_result=$(which "$cmd" 2>/dev/null) || true
+        if [[ -n "$which_result" ]] && [[ -x "$which_result" ]]; then
+            echo "$which_result"
+            return 0
+        fi
+    fi
 
     # Comando no encontrado
     return 1
