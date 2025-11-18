@@ -30,7 +30,7 @@ get_log_level_value() {
 
 # Inicializar sistema de logging
 init_logger() {
-    local log_dir="$1"
+    local log_dir="${1:-}"
 
     if [[ -n "$log_dir" ]]; then
         LOG_DIR="$log_dir"
@@ -58,7 +58,7 @@ init_logger() {
 
 # Función genérica de logging
 _log() {
-    local level="$1"
+    local level="${1:-INFO}"
     shift
     local message="$*"
     local timestamp
@@ -128,8 +128,8 @@ log_command() {
 
 # Logging de errores de comandos
 log_command_error() {
-    local cmd="$1"
-    local exit_code="$2"
+    local cmd="${1:-}"
+    local exit_code="${2:-1}"
     local error_msg="${3:-Error desconocido}"
 
     log_error "Comando falló (código $exit_code): $cmd"
@@ -149,7 +149,7 @@ log_env() {
 
 # Función para capturar y loguear la salida de un comando
 run_and_log() {
-    local description="$1"
+    local description="${1:-}"
     shift
     local cmd="$*"
 
@@ -180,9 +180,9 @@ print_log_summary() {
         errors=$(grep -c "\[ERROR\]" "$LOG_FILE" 2>/dev/null || echo "0")
         warnings=$(grep -c "\[WARN\]" "$LOG_FILE" 2>/dev/null || echo "0")
 
-        # Limpiar saltos de línea
-        errors=$(echo "$errors" | tr -d '\n\r' | tr -d '[:space:]' || echo "0")
-        warnings=$(echo "$warnings" | tr -d '\n\r' | tr -d '[:space:]' || echo "0")
+        # Tomar solo primera línea y limpiar espacios al inicio/final
+        errors=$(echo "$errors" | head -n1 | xargs 2>/dev/null || echo "0")
+        warnings=$(echo "$warnings" | head -n1 | xargs 2>/dev/null || echo "0")
 
         # Validar que sean números
         [[ ! "$errors" =~ ^[0-9]+$ ]] && errors=0

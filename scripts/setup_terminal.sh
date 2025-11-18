@@ -1031,7 +1031,7 @@ run_installation() {
     # Verificar instalación
     if [[ "$DRY_RUN" == "false" ]]; then
         echo ""
-        verify_installation
+        verify_installation || log_warn "La verificación encontró algunos problemas, pero la instalación continuó"
     fi
 
     # Mensaje final
