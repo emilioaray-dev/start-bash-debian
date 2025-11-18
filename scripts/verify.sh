@@ -93,25 +93,36 @@ verify_system_info() {
 
 verify_neofetch_installation() {
     log_subheader "Verificando Neofetch"
+    log_debug "DEBUG: Iniciando verify_neofetch_installation"
+    log_debug "DEBUG: HOME=${HOME:-UNSET}"
+    log_debug "DEBUG: PATH=${PATH:-UNSET}"
 
     # Pre-actualizar PATH dinámicamente si los comandos están disponibles localmente
     # Esto se hace antes de verificar la existencia para asegurar que el PATH esté actualizado
     # Verificar si el binario existe en la ubicación estándar de instalación local
     local local_neofetch_path="${HOME:-/root}/.local/bin/neofetch"
+    log_debug "DEBUG: local_neofetch_path=$local_neofetch_path"
+
     if [[ -n "${HOME:-}" ]] && [[ -x "$local_neofetch_path" ]]; then
+        log_debug "DEBUG: HOME is set and neofetch is executable"
         # Verificar si el directorio ya está en PATH para evitar duplicados
         case ":${PATH:-}:" in
             *":${HOME}/.local/bin:"*)
                 # Directorio ya está en PATH, no hacer nada
+                log_debug "DEBUG: PATH already contains HOME/.local/bin"
                 ;;
             *)
                 # Añadir directorio al PATH
                 PATH="${HOME}/.local/bin:${PATH:-}"
+                log_debug "DEBUG: Added HOME/.local/bin to PATH"
                 ;;
         esac
+    else
+        log_debug "DEBUG: HOME not set or neofetch not executable at $local_neofetch_path"
     fi
 
     # Verificar si está instalado y se puede ejecutar
+    log_debug "DEBUG: Checking if neofetch is installed"
     local neofetch_found=0
     # Use the most basic and safe method to check for command existence
     if command -v neofetch >/dev/null 2>&1; then

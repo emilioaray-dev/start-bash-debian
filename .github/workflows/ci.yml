@@ -51,7 +51,7 @@ jobs:
       - name: Verificar instalación
         run: |
           cd scripts
-          bash verify.sh
+          bash verify.sh --verbose
 
   test-macos:
     name: Test en macOS (Latest)
