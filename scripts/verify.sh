@@ -588,9 +588,19 @@ parse_arguments() {
     done
 }
 
-# Agregar ~/.local/bin al PATH si es necesario para que la verificación funcione
+# Agregar rutas comunes de instalación local al PATH si es necesario para que la verificación funcione
+# Esto incluye tanto la ruta estándar como rutas específicas de entornos CI
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
     export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# Asegurar también rutas comunes en entornos CI donde los comandos pueden estar instalados
+if [[ ":$PATH:" != *":/github/home/.local/bin:"* ]]; then
+    export PATH="/github/home/.local/bin:$PATH"
+fi
+
+if [[ ":$PATH:" != *":/home/runner/.local/bin:"* ]]; then
+    export PATH="/home/runner/.local/bin:$PATH"
 fi
 
 # Función auxiliar para encontrar comandos en múltiples ubicaciones posibles
@@ -612,7 +622,7 @@ find_command_path() {
         "$HOME/.local/bin/$cmd"
         "$HOME/.local/bin/$cmd.exe"
         "/github/home/.local/bin/$cmd"   # Ruta específica para entornos CI de GitHub Actions con HOME=/github/home
-        "/home/runner/.local/bin/$cmd"   # Ruta específica para otros entornos CI de GitHub Actions
+        "/home/runner/.local/bin/$cmd"   # Ruta específica para entornos CI de GitHub Actions con HOME=/home/runner
         "/usr/local/bin/$cmd"
         "/usr/bin/$cmd"
     )
