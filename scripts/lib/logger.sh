@@ -180,6 +180,14 @@ print_log_summary() {
         errors=$(grep -c "\[ERROR\]" "$LOG_FILE" 2>/dev/null || echo "0")
         warnings=$(grep -c "\[WARN\]" "$LOG_FILE" 2>/dev/null || echo "0")
 
+        # Limpiar saltos de línea
+        errors=$(echo "$errors" | tr -d '\n\r' | tr -d '[:space:]' || echo "0")
+        warnings=$(echo "$warnings" | tr -d '\n\r' | tr -d '[:space:]' || echo "0")
+
+        # Validar que sean números
+        [[ ! "$errors" =~ ^[0-9]+$ ]] && errors=0
+        [[ ! "$warnings" =~ ^[0-9]+$ ]] && warnings=0
+
         echo ""
         print_header "📊 Resumen de Ejecución"
 
@@ -187,15 +195,15 @@ print_log_summary() {
         echo -e "${COLOR_BOLD}Errores:${COLOR_RESET} $errors"
         echo -e "${COLOR_BOLD}Advertencias:${COLOR_RESET} $warnings"
 
-        if [[ $errors -gt 0 ]]; then
+        if [[ "$errors" -gt 0 ]]; then
             print_warning "Se encontraron $errors error(es). Revisa el log para más detalles."
         fi
 
-        if [[ $warnings -gt 0 ]]; then
+        if [[ "$warnings" -gt 0 ]]; then
             print_info "Se encontraron $warnings advertencia(s)."
         fi
 
-        if [[ $errors -eq 0 && $warnings -eq 0 ]]; then
+        if [[ "$errors" -eq 0 && "$warnings" -eq 0 ]]; then
             print_success "Ejecución completada sin errores ni advertencias"
         fi
 
