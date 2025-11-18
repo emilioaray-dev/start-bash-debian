@@ -278,7 +278,8 @@ cleanup_shell_rc() {
 
     if [[ "$DRY_RUN" == "false" ]]; then
         # Remover comentarios relacionados con setup terminal si sus comandos fueron removidos
-        local temp_file=$(mktemp)
+        local temp_file
+        temp_file=$(mktemp)
 
         # Filtrar comentarios huérfanos
         awk '

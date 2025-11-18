@@ -189,7 +189,8 @@ update_changelog() {
     date=$(date +%Y-%m-%d)
 
     # Crear entrada temporal
-    local temp_entry=$(cat << EOF
+    local temp_entry
+    temp_entry=$(cat << EOF
 ## [$new_version] - $date
 
 ### Cambios
@@ -204,7 +205,8 @@ EOF
     # Insertar después de la línea "## [Unreleased]"
     if grep -q "## \[Unreleased\]" "$CHANGELOG_FILE"; then
         # Crear archivo temporal
-        local temp_file=$(mktemp)
+        local temp_file
+        temp_file=$(mktemp)
 
         awk -v entry="$temp_entry" '
         /## \[Unreleased\]/ {

@@ -65,7 +65,8 @@ else
     _log() {
         local level="$1"
         shift
-        local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+        local timestamp
+        timestamp=$(date '+%Y-%m-%d %H:%M:%S')
         echo "[$timestamp] [$level] $*" >> "$LOG_FILE" 2>/dev/null || true
     }
 
@@ -117,7 +118,8 @@ else
         fi
     }
     is_debian_based() {
-        local distro=$(get_distro_name)
+        local distro
+        distro=$(get_distro_name)
         [[ "$distro" =~ ^(debian|ubuntu|linuxmint|pop|kali)$ ]]
     }
     command_exists() { command -v "$1" &> /dev/null; }
@@ -157,7 +159,8 @@ else
     }
     check_disk_space() {
         local required_mb="${1:-100}"
-        local available=$(df -m . | awk 'NR==2 {print $4}')
+        local available
+        available=$(df -m . | awk 'NR==2 {print $4}')
         if [[ $available -lt $required_mb ]]; then
             log_error "Espacio en disco insuficiente. Requerido: ${required_mb}MB, Disponible: ${available}MB"
             return 1
