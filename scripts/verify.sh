@@ -621,11 +621,14 @@ check_for_issues() {
     # Verificar conflictos de PATH - more resilient approach
     local neofetch_count=0
     # Count neofetch binaries in PATH without potentially failing find commands
-    # Use mapfile to safely split PATH avoiding word splitting issues
+    # Split PATH using Bash 3.2 compatible method
     local path_dirs=()
     local old_ifs="$IFS"
     IFS=':'
-    mapfile -t path_dirs <<< "$PATH"
+    # Bash 3.2 compatible: use read in a loop instead of mapfile
+    while read -r dir; do
+        path_dirs+=("$dir")
+    done <<< "$PATH"
     IFS="$old_ifs"
 
     for dir in "${path_dirs[@]}"; do
@@ -645,11 +648,14 @@ check_for_issues() {
 
     local starship_count=0
     # Count starship binaries in PATH without potentially failing find commands
-    # Use mapfile to safely split PATH avoiding word splitting issues
+    # Split PATH using Bash 3.2 compatible method
     local path_dirs=()
     local old_ifs="$IFS"
     IFS=':'
-    mapfile -t path_dirs <<< "$PATH"
+    # Bash 3.2 compatible: use read in a loop instead of mapfile
+    while read -r dir; do
+        path_dirs+=("$dir")
+    done <<< "$PATH"
     IFS="$old_ifs"
 
     for dir in "${path_dirs[@]}"; do
