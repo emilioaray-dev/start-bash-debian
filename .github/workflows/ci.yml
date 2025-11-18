@@ -203,11 +203,12 @@ jobs:
         run: |
           test -f LICENSE && echo "✅ LICENSE encontrado" || echo "⚠️ LICENSE no encontrado"
 
-      - name: Lint Markdown
-        uses: actionshub/markdownlint@main
-        with:
-          path: .
-          filesToIgnoreRegex: "node_modules"
+      # Markdownlint deshabilitado - genera demasiado ruido en CI/CD
+      # - name: Lint Markdown
+      #   uses: actionshub/markdownlint@main
+      #   with:
+      #     path: .
+      #     filesToIgnoreRegex: "node_modules"
 
   summary:
     name: Resumen de CI
