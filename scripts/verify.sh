@@ -97,11 +97,38 @@ verify_neofetch_installation() {
     # Verificar si está instalado y se puede ejecutar
     if command_exists neofetch; then
         local version
-        version=$(timeout 10s neofetch --version 2>&1 | head -n1 || echo "desconocida")
+        # Verificar si timeout está disponible
+        if command -v timeout &> /dev/null; then
+            version=$(timeout 10s neofetch --version 2>&1 | head -n1 || echo "desconocida")
+        else
+            # En macOS, se puede usar gtimeout (si está instalado con brew) o ejecutar directamente
+            if command -v gtimeout &> /dev/null; then
+                version=$(gtimeout 10s neofetch --version 2>&1 | head -n1 || echo "desconocida")
+            else
+                # Sin timeout, usar ejecución directa pero con limitación de tiempo usando otra técnica
+                version=$( (ulimit -t 10; neofetch --version 2>&1) | head -n1 || echo "desconocida")
+            fi
+        fi
         check_pass "Neofetch está instalado: $version"
 
         # Verificar que se puede ejecutar con un comando básico
-        if timeout 5s neofetch &> /dev/null || timeout 5s neofetch --help &> /dev/null || timeout 5s neofetch --stdout &> /dev/null; then
+        local cmd_executed=0
+        if command -v timeout &> /dev/null; then
+            if timeout 5s neofetch &> /dev/null || timeout 5s neofetch --help &> /dev/null || timeout 5s neofetch --stdout &> /dev/null; then
+                cmd_executed=1
+            fi
+        elif command -v gtimeout &> /dev/null; then
+            if gtimeout 5s neofetch &> /dev/null || gtimeout 5s neofetch --help &> /dev/null || gtimeout 5s neofetch --stdout &> /dev/null; then
+                cmd_executed=1
+            fi
+        else
+            # Sin timeout, intentar ejecución directa
+            if neofetch &> /dev/null || neofetch --help &> /dev/null || neofetch --stdout &> /dev/null; then
+                cmd_executed=1
+            fi
+        fi
+
+        if [[ $cmd_executed -eq 1 ]]; then
             check_pass "Neofetch es ejecutable"
         else
             check_fail "Neofetch no se puede ejecutar correctamente"
@@ -123,11 +150,38 @@ verify_starship_installation() {
     # Verificar si está instalado y se puede ejecutar
     if command_exists starship; then
         local version
-        version=$(timeout 10s starship --version 2>&1 | head -n1 || echo "desconocida")
+        # Verificar si timeout está disponible
+        if command -v timeout &> /dev/null; then
+            version=$(timeout 10s starship --version 2>&1 | head -n1 || echo "desconocida")
+        else
+            # En macOS, se puede usar gtimeout (si está instalado con brew) o ejecutar directamente
+            if command -v gtimeout &> /dev/null; then
+                version=$(gtimeout 10s starship --version 2>&1 | head -n1 || echo "desconocida")
+            else
+                # Sin timeout, usar ejecución directa pero con limitación de tiempo usando otra técnica
+                version=$( (ulimit -t 10; starship --version 2>&1) | head -n1 || echo "desconocida")
+            fi
+        fi
         check_pass "Starship está instalado: $version"
 
         # Verificar que se puede ejecutar con un comando básico
-        if timeout 5s starship &> /dev/null || timeout 5s starship init bash &> /dev/null || timeout 5s starship --help &> /dev/null; then
+        local cmd_executed=0
+        if command -v timeout &> /dev/null; then
+            if timeout 5s starship &> /dev/null || timeout 5s starship init bash &> /dev/null || timeout 5s starship --help &> /dev/null; then
+                cmd_executed=1
+            fi
+        elif command -v gtimeout &> /dev/null; then
+            if gtimeout 5s starship &> /dev/null || gtimeout 5s starship init bash &> /dev/null || gtimeout 5s starship --help &> /dev/null; then
+                cmd_executed=1
+            fi
+        else
+            # Sin timeout, intentar ejecución directa
+            if starship &> /dev/null || starship init bash &> /dev/null || starship --help &> /dev/null; then
+                cmd_executed=1
+            fi
+        fi
+
+        if [[ $cmd_executed -eq 1 ]]; then
             check_pass "Starship es ejecutable"
         else
             check_fail "Starship no se puede ejecutar correctamente"
@@ -282,10 +336,25 @@ run_functionality_tests() {
     if command_exists neofetch; then
         log_step "Ejecutando Neofetch..."
 
-        if timeout 10s neofetch --stdout &> /dev/null; then
-            check_pass "Neofetch ejecuta correctamente"
+        if command -v timeout &> /dev/null; then
+            if timeout 10s neofetch --stdout &> /dev/null; then
+                check_pass "Neofetch ejecuta correctamente"
+            else
+                check_fail "Neofetch falló al ejecutar"
+            fi
+        elif command -v gtimeout &> /dev/null; then
+            if gtimeout 10s neofetch --stdout &> /dev/null; then
+                check_pass "Neofetch ejecuta correctamente"
+            else
+                check_fail "Neofetch falló al ejecutar"
+            fi
         else
-            check_fail "Neofetch falló al ejecutar"
+            # Sin timeout, ejecutar directamente
+            if neofetch --stdout &> /dev/null; then
+                check_pass "Neofetch ejecuta correctamente"
+            else
+                check_fail "Neofetch falló al ejecutar"
+            fi
         fi
     fi
 
@@ -299,10 +368,25 @@ run_functionality_tests() {
 
         case "$shell" in
             bash|zsh)
-                if timeout 5s starship prompt &> /dev/null; then
-                    check_pass "Starship genera prompt correctamente"
+                if command -v timeout &> /dev/null; then
+                    if timeout 5s starship prompt &> /dev/null; then
+                        check_pass "Starship genera prompt correctamente"
+                    else
+                        check_warn "Starship tardó mucho o falló generando prompt"
+                    fi
+                elif command -v gtimeout &> /dev/null; then
+                    if gtimeout 5s starship prompt &> /dev/null; then
+                        check_pass "Starship genera prompt correctamente"
+                    else
+                        check_warn "Starship tardó mucho o falló generando prompt"
+                    fi
                 else
-                    check_warn "Starship tardó mucho o falló generando prompt"
+                    # Sin timeout, ejecutar directamente
+                    if starship prompt &> /dev/null; then
+                        check_pass "Starship genera prompt correctamente"
+                    else
+                        check_warn "Starship tardó mucho o falló generando prompt"
+                    fi
                 fi
                 ;;
             *)
