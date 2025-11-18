@@ -861,8 +861,18 @@ verify_installation() {
     if [[ "$INSTALL_NEOFETCH" == "true" ]]; then
         if command_exists neofetch; then
             local version
-            version=$(neofetch --version 2>&1 | head -n1)
-            log_success "Neofetch instalado: $version"
+            version=$(timeout 10s neofetch --version 2>&1 | head -n1 || echo "No se pudo obtener versión")
+            if [[ "$version" != "No se pudo obtener versión" ]]; then
+                log_success "Neofetch instalado: $version"
+            else
+                # Intentar con otro comando por si --version tiene problemas
+                if timeout 5s neofetch --help &> /dev/null || timeout 5s neofetch --stdout &> /dev/null; then
+                    log_success "Neofetch instalado: disponible pero no responde a --version"
+                else
+                    log_error "Neofetch NO se puede ejecutar correctamente"
+                    all_ok=false
+                fi
+            fi
         else
             log_error "Neofetch NO encontrado"
             all_ok=false
@@ -873,8 +883,18 @@ verify_installation() {
     if [[ "$INSTALL_STARSHIP" == "true" ]]; then
         if command_exists starship; then
             local version
-            version=$(starship --version 2>&1 | head -n1)
-            log_success "Starship instalado: $version"
+            version=$(timeout 10s starship --version 2>&1 | head -n1 || echo "No se pudo obtener versión")
+            if [[ "$version" != "No se pudo obtener versión" ]]; then
+                log_success "Starship instalado: $version"
+            else
+                # Intentar con otro comando por si --version tiene problemas
+                if timeout 5s starship init bash &> /dev/null || timeout 5s starship --help &> /dev/null; then
+                    log_success "Starship instalado: disponible pero no responde a --version"
+                else
+                    log_error "Starship NO se puede ejecutar correctamente"
+                    all_ok=false
+                fi
+            fi
         else
             log_error "Starship NO encontrado"
             all_ok=false
