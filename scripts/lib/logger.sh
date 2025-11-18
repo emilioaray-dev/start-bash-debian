@@ -180,9 +180,9 @@ print_log_summary() {
         errors=$(grep -c "\[ERROR\]" "$LOG_FILE" 2>/dev/null || echo "0")
         warnings=$(grep -c "\[WARN\]" "$LOG_FILE" 2>/dev/null || echo "0")
 
-        # Limpiar saltos de línea
-        errors=$(echo "$errors" | tr -d '\n\r' | tr -d '[:space:]' || echo "0")
-        warnings=$(echo "$warnings" | tr -d '\n\r' | tr -d '[:space:]' || echo "0")
+        # Tomar solo primera línea y limpiar espacios al inicio/final
+        errors=$(echo "$errors" | head -n1 | xargs 2>/dev/null || echo "0")
+        warnings=$(echo "$warnings" | head -n1 | xargs 2>/dev/null || echo "0")
 
         # Validar que sean números
         [[ ! "$errors" =~ ^[0-9]+$ ]] && errors=0
