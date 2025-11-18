@@ -177,8 +177,17 @@ print_log_summary() {
     local warnings
 
     if [[ -f "$LOG_FILE" && "$LOG_FILE" != "/dev/null" ]]; then
+        # Asegurar que los resultados de grep -c sean números limpios
         errors=$(grep -c "\[ERROR\]" "$LOG_FILE" 2>/dev/null || echo "0")
         warnings=$(grep -c "\[WARN\]" "$LOG_FILE" 2>/dev/null || echo "0")
+
+        # Limpiar las variables para asegurar que solo contengan dígitos
+        errors=$(echo "$errors" | tr -cd '0-9')
+        warnings=$(echo "$warnings" | tr -cd '0-9')
+
+        # Asegurar valores por defecto numéricos
+        errors=${errors:-0}
+        warnings=${warnings:-0}
 
         echo ""
         print_header "📊 Resumen de Ejecución"
