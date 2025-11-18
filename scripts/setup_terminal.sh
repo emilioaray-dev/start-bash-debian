@@ -1112,13 +1112,22 @@ parse_arguments() {
 # ==============================================================================
 
 main() {
+    # Debug: Confirmar inicio
+    echo "[DEBUG] Iniciando main() con argumentos: $*" >&2
+    log_debug "Iniciando main() con argumentos: $*"
+
     # Configurar manejo de errores
+    echo "[DEBUG] Configurando manejo de errores..." >&2
     setup_error_handling
+    echo "[DEBUG] Manejo de errores configurado" >&2
 
     # Parsear argumentos
+    echo "[DEBUG] Parseando argumentos..." >&2
     parse_arguments "$@"
+    echo "[DEBUG] Argumentos parseados: INSTALL_MODE=$INSTALL_MODE, DRY_RUN=$DRY_RUN" >&2
 
     # Ejecutar instalación
+    echo "[DEBUG] Iniciando run_installation..." >&2
     run_installation
 
     # Mostrar resumen de logs
