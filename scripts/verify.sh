@@ -96,23 +96,20 @@ verify_neofetch_installation() {
 
     # Pre-actualizar PATH dinámicamente si los comandos están disponibles localmente
     # Esto se hace antes de verificar la existencia para asegurar que el PATH esté actualizado
-    local local_bin_paths=("$HOME/.local/bin" "/github/home/.local/bin" "/home/runner/.local/bin")
-    for bin_path in "${local_bin_paths[@]}"; do
-        # Safety check: ensure bin_path is not empty
-        if [[ -n "$bin_path" ]]; then
-            # Añadir la ruta al PATH si no está ya y el binario existe
-            if [[ -d "$bin_path" ]] && [[ -x "$bin_path/neofetch" ]]; then
-                # Properly quote the PATH check to avoid globbing issues
-                local path_check=":$PATH:"
-                local bin_check=":$bin_path:"
-                if [[ "$path_check" != *"$bin_check"* ]]; then
-                    # Safety check to ensure bin_path is a valid path before adding to PATH
-                    PATH="$bin_path:$PATH"
-                fi
-                break  # Solo añadir la primera coincidencia encontrada
-            fi
-        fi
-    done
+    # Verificar si el binario existe en la ubicación estándar de instalación local
+    local local_neofetch_path="$HOME/.local/bin/neofetch"
+    if [[ -x "$local_neofetch_path" ]]; then
+        # Verificar si el directorio ya está en PATH para evitar duplicados
+        case ":$PATH:" in
+            *":$HOME/.local/bin:"*)
+                # Directorio ya está en PATH, no hacer nada
+                ;;
+            *)
+                # Añadir directorio al PATH
+                PATH="$HOME/.local/bin:$PATH"
+                ;;
+        esac
+    fi
 
     # Verificar si está instalado y se puede ejecutar
     local neofetch_found=0
@@ -186,23 +183,20 @@ verify_starship_installation() {
 
     # Pre-actualizar PATH dinámicamente si los comandos están disponibles localmente
     # Esto se hace antes de verificar la existencia para asegurar que el PATH esté actualizado
-    local local_bin_paths=("$HOME/.local/bin" "/github/home/.local/bin" "/home/runner/.local/bin")
-    for bin_path in "${local_bin_paths[@]}"; do
-        # Safety check: ensure bin_path is not empty
-        if [[ -n "$bin_path" ]]; then
-            # Añadir la ruta al PATH si no está ya y el binario existe
-            if [[ -d "$bin_path" ]] && [[ -x "$bin_path/starship" ]]; then
-                # Properly quote the PATH check to avoid globbing issues
-                local path_check=":$PATH:"
-                local bin_check=":$bin_path:"
-                if [[ "$path_check" != *"$bin_check"* ]]; then
-                    # Safety check to ensure bin_path is a valid path before adding to PATH
-                    PATH="$bin_path:$PATH"
-                fi
-                break  # Solo añadir la primera coincidencia encontrada
-            fi
-        fi
-    done
+    # Verificar si el binario existe en la ubicación estándar de instalación local
+    local local_starship_path="$HOME/.local/bin/starship"
+    if [[ -x "$local_starship_path" ]]; then
+        # Verificar si el directorio ya está en PATH para evitar duplicados
+        case ":$PATH:" in
+            *":$HOME/.local/bin:"*)
+                # Directorio ya está en PATH, no hacer nada
+                ;;
+            *)
+                # Añadir directorio al PATH
+                PATH="$HOME/.local/bin:$PATH"
+                ;;
+        esac
+    fi
 
     # Verificar si está instalado y se puede ejecutar
     local starship_found=0
