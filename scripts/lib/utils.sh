@@ -4,10 +4,14 @@
 # utils.sh - Funciones utilitarias comunes
 # ==============================================================================
 
+# Guard para evitar múltiples cargas
+[[ -n "${__UTILS_SH_LOADED__:-}" ]] && return 0
+__UTILS_SH_LOADED__=1
+
 # Sourcing de dependencias
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/colors.sh"
-source "${SCRIPT_DIR}/logger.sh"
+[[ -z "${__COLORS_SH_LOADED__:-}" ]] && source "${SCRIPT_DIR}/colors.sh"
+[[ -z "${__LOGGER_SH_LOADED__:-}" ]] && source "${SCRIPT_DIR}/logger.sh"
 
 # ==============================================================================
 # Control de Versiones

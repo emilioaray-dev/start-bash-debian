@@ -4,6 +4,10 @@
 # colors.sh - Sistema de colores y formato para terminal
 # ==============================================================================
 
+# Guard para evitar múltiples cargas
+[[ -n "${__COLORS_SH_LOADED__:-}" ]] && return 0
+__COLORS_SH_LOADED__=1
+
 # Verificar si el terminal soporta colores
 if [[ -t 1 ]] && command -v tput &> /dev/null && tput setaf 1 &> /dev/null; then
     COLORS_SUPPORTED=true
