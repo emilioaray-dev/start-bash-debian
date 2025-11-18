@@ -4,9 +4,13 @@
 # logger.sh - Sistema de logging profesional
 # ==============================================================================
 
+# Guard para evitar múltiples cargas
+[[ -n "${__LOGGER_SH_LOADED__:-}" ]] && return 0
+__LOGGER_SH_LOADED__=1
+
 # Sourcing colors
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/colors.sh"
+[[ -z "${__COLORS_SH_LOADED__:-}" ]] && source "${SCRIPT_DIR}/colors.sh"
 
 # Configuración del logger
 LOG_DIR="${LOG_DIR:-/tmp}"

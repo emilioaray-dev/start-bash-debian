@@ -65,7 +65,8 @@ else
     _log() {
         local level="$1"
         shift
-        local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+        local timestamp
+        timestamp=$(date '+%Y-%m-%d %H:%M:%S')
         echo "[$timestamp] [$level] $*" >> "$LOG_FILE" 2>/dev/null || true
     }
 
@@ -117,7 +118,8 @@ else
         fi
     }
     is_debian_based() {
-        local distro=$(get_distro_name)
+        local distro
+        distro=$(get_distro_name)
         [[ "$distro" =~ ^(debian|ubuntu|linuxmint|pop|kali)$ ]]
     }
     command_exists() { command -v "$1" &> /dev/null; }
@@ -157,7 +159,8 @@ else
     }
     check_disk_space() {
         local required_mb="${1:-100}"
-        local available=$(df -m . | awk 'NR==2 {print $4}')
+        local available
+        available=$(df -m . | awk 'NR==2 {print $4}')
         if [[ $available -lt $required_mb ]]; then
             log_error "Espacio en disco insuficiente. Requerido: ${required_mb}MB, Disponible: ${available}MB"
             return 1
@@ -600,7 +603,14 @@ configure_neofetch() {
     local neofetch_comment="# Display system info on startup (Neofetch)"
 
     if [[ "$DRY_RUN" == "false" ]]; then
-        if ! grep -q "$neofetch_line" "$rc_file" 2>/dev/null; then
+        # Asegurar que el archivo existe
+        if [[ ! -f "$rc_file" ]]; then
+            touch "$rc_file"
+            log_debug "Archivo creado: $rc_file"
+        fi
+
+        # Verificar si neofetch ya está configurado
+        if ! grep -q "^neofetch" "$rc_file" 2>/dev/null; then
             {
                 echo ""
                 echo "$neofetch_comment"
@@ -646,6 +656,13 @@ configure_starship() {
     local starship_comment="# Starship Prompt Initialization"
 
     if [[ "$DRY_RUN" == "false" ]]; then
+        # Asegurar que el archivo existe
+        if [[ ! -f "$rc_file" ]]; then
+            touch "$rc_file"
+            log_debug "Archivo creado: $rc_file"
+        fi
+
+        # Verificar si starship ya está configurado
         if ! grep -q "starship init" "$rc_file" 2>/dev/null; then
             {
                 echo ""
@@ -673,6 +690,12 @@ add_to_path_if_needed() {
         log_step "Agregando $dir al PATH..."
 
         if [[ "$DRY_RUN" == "false" ]]; then
+            # Asegurar que el archivo existe
+            if [[ ! -f "$rc_file" ]]; then
+                touch "$rc_file"
+                log_debug "Archivo creado: $rc_file"
+            fi
+
             local path_line="export PATH=\"$dir:\$PATH\""
             local path_comment="# Local bin directory"
 
@@ -1089,13 +1112,22 @@ parse_arguments() {
 # ==============================================================================
 
 main() {
+    # Debug: Confirmar inicio
+    echo "[DEBUG] Iniciando main() con argumentos: $*" >&2
+    log_debug "Iniciando main() con argumentos: $*"
+
     # Configurar manejo de errores
+    echo "[DEBUG] Configurando manejo de errores..." >&2
     setup_error_handling
+    echo "[DEBUG] Manejo de errores configurado" >&2
 
     # Parsear argumentos
+    echo "[DEBUG] Parseando argumentos..." >&2
     parse_arguments "$@"
+    echo "[DEBUG] Argumentos parseados: INSTALL_MODE=$INSTALL_MODE, DRY_RUN=$DRY_RUN" >&2
 
     # Ejecutar instalación
+    echo "[DEBUG] Iniciando run_installation..." >&2
     run_installation
 
     # Mostrar resumen de logs

@@ -321,9 +321,8 @@ disabled = false
 # Configuraciones Avanzadas
 # ==============================================================================
 
-# Deshabilitado por defecto - consumo de recursos
-[scan_timeout]
-timeout = 30
+# Timeout para escanear archivos (en milisegundos)
+scan_timeout = 30
 
 # Deshabilitado por defecto - no muy usado
 [c]
