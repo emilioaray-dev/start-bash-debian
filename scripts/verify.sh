@@ -144,10 +144,15 @@ verify_neofetch_installation() {
     log_debug "DEBUG: Finished checking, neofetch_found=$neofetch_found"
 
     if [[ $neofetch_found -eq 1 ]]; then
+        log_debug "DEBUG: Neofetch found, getting version"
         local version=""
+        log_debug "DEBUG: Initialized version variable"
         # Verificar si timeout está disponible
+        log_debug "DEBUG: Checking if timeout command is available"
         if command -v timeout &> /dev/null; then
+            log_debug "DEBUG: timeout command found, running neofetch --version"
             version=$(timeout 10s neofetch --version 2>&1 | head -n1 | grep -v "command not found" 2>/dev/null || echo "desconocida")
+            log_debug "DEBUG: Got version: $version"
         else
             # En macOS, se puede usar gtimeout (si está instalado con brew) o ejecutar directamente
             if command -v gtimeout &> /dev/null; then
