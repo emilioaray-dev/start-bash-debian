@@ -443,11 +443,8 @@ Para más ayuda, consulta [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
 ## 🧪 Testing y CI/CD
 
 El proyecto incluye tests automatizados que se ejecutan en:
-- ✅ Debian 11 (Bullseye)
 - ✅ Debian 12 (Bookworm)
-- ✅ Ubuntu 20.04 LTS
-- ✅ Ubuntu 22.04 LTS
-- ✅ Ubuntu 24.04 LTS
+- ✅ macOS Latest
 
 ### Ejecutar tests localmente
 

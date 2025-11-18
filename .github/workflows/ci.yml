@@ -23,11 +23,18 @@ jobs:
           severity: warning
           check_together: 'yes'
 
-  test-ubuntu:
-    name: Test en Ubuntu 24.04
-    runs-on: ubuntu-24.04
+  test-debian:
+    name: Test en Debian 12 (Bookworm)
+    runs-on: ubuntu-latest
+    container:
+      image: debian:12
 
     steps:
+      - name: Instalar dependencias básicas
+        run: |
+          apt-get update
+          apt-get install -y git curl ca-certificates
+
       - name: Checkout código
         uses: actions/checkout@v4
 
@@ -149,7 +156,7 @@ jobs:
   summary:
     name: Resumen de CI
     runs-on: ubuntu-latest
-    needs: [shellcheck, test-ubuntu, test-macos, validate-configs]
+    needs: [shellcheck, test-debian, test-macos, validate-configs]
     if: always()
 
     steps:
