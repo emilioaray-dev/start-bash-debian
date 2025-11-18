@@ -35,9 +35,13 @@ get_project_version() {
         if [[ -n "$version" ]]; then
             # Agregar sufijo -dev si no estamos en un tag exacto
             local commits_since
-            commits_since=$(git rev-list $(git describe --tags --abbrev=0)..HEAD --count 2>/dev/null)
-            if [[ $commits_since -gt 0 ]]; then
-                version="${version}-dev+${commits_since}"
+            local last_tag
+            last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+            if [[ -n "$last_tag" ]]; then
+                commits_since=$(git rev-list "${last_tag}..HEAD" --count 2>/dev/null || echo "0")
+                if [[ $commits_since -gt 0 ]]; then
+                    version="${version}-dev+${commits_since}"
+                fi
             fi
             echo "$version"
             return 0
@@ -56,7 +60,7 @@ get_project_version() {
 
     # Fallback - versión por defecto
     echo "2.1.0-unknown"
-    return 1
+    return 0
 }
 
 # ==============================================================================
