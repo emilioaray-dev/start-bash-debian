@@ -1064,6 +1064,14 @@ run_installation() {
     # Configurar shell
     configure_shell
 
+    # Si se instaló en modo local, actualizar PATH para esta sesión
+    if [[ "$INSTALL_MODE" == "local" ]]; then
+        # Añadir la ruta local al PATH para que la verificación funcione
+        if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+            export PATH="$HOME/.local/bin:$PATH"
+        fi
+    fi
+
     # Verificar instalación
     if [[ "$DRY_RUN" == "false" ]]; then
         echo ""
