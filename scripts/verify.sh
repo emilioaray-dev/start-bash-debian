@@ -84,8 +84,8 @@ verify_system_info() {
     echo "Sistema Operativo: $(get_distro_name) $(get_distro_version)"
     echo "Kernel: $(uname -r)"
     echo "Arquitectura: $(uname -m)"
-    echo "Usuario: $USER"
-    echo "Home: $HOME"
+    echo "Usuario: ${USER:-unknown}"
+    echo "Home: ${HOME:-unknown}"
     echo "Shell: $(get_user_shell)"
     echo "Shell RC: $(get_shell_rc_file)"
     echo ""
@@ -97,16 +97,16 @@ verify_neofetch_installation() {
     # Pre-actualizar PATH dinámicamente si los comandos están disponibles localmente
     # Esto se hace antes de verificar la existencia para asegurar que el PATH esté actualizado
     # Verificar si el binario existe en la ubicación estándar de instalación local
-    local local_neofetch_path="$HOME/.local/bin/neofetch"
-    if [[ -x "$local_neofetch_path" ]]; then
+    local local_neofetch_path="${HOME:-/root}/.local/bin/neofetch"
+    if [[ -n "${HOME:-}" ]] && [[ -x "$local_neofetch_path" ]]; then
         # Verificar si el directorio ya está en PATH para evitar duplicados
-        case ":$PATH:" in
-            *":$HOME/.local/bin:"*)
+        case ":${PATH:-}:" in
+            *":${HOME}/.local/bin:"*)
                 # Directorio ya está en PATH, no hacer nada
                 ;;
             *)
                 # Añadir directorio al PATH
-                PATH="$HOME/.local/bin:$PATH"
+                PATH="${HOME}/.local/bin:${PATH:-}"
                 ;;
         esac
     fi
@@ -118,7 +118,7 @@ verify_neofetch_installation() {
         neofetch_found=1
     else
         # Si no se encuentra vía command -v, intentar con la ruta directa de instalación local
-        if [[ -x "$HOME/.local/bin/neofetch" ]]; then
+        if [[ -n "${HOME:-}" ]] && [[ -x "${HOME}/.local/bin/neofetch" ]]; then
             neofetch_found=1
         fi
     fi
@@ -189,16 +189,16 @@ verify_starship_installation() {
     # Pre-actualizar PATH dinámicamente si los comandos están disponibles localmente
     # Esto se hace antes de verificar la existencia para asegurar que el PATH esté actualizado
     # Verificar si el binario existe en la ubicación estándar de instalación local
-    local local_starship_path="$HOME/.local/bin/starship"
-    if [[ -x "$local_starship_path" ]]; then
+    local local_starship_path="${HOME:-/root}/.local/bin/starship"
+    if [[ -n "${HOME:-}" ]] && [[ -x "$local_starship_path" ]]; then
         # Verificar si el directorio ya está en PATH para evitar duplicados
-        case ":$PATH:" in
-            *":$HOME/.local/bin:"*)
+        case ":${PATH:-}:" in
+            *":${HOME}/.local/bin:"*)
                 # Directorio ya está en PATH, no hacer nada
                 ;;
             *)
                 # Añadir directorio al PATH
-                PATH="$HOME/.local/bin:$PATH"
+                PATH="${HOME}/.local/bin:${PATH:-}"
                 ;;
         esac
     fi
@@ -210,7 +210,7 @@ verify_starship_installation() {
         starship_found=1
     else
         # Si no se encuentra vía command -v, intentar con la ruta directa de instalación local
-        if [[ -x "$HOME/.local/bin/starship" ]]; then
+        if [[ -n "${HOME:-}" ]] && [[ -x "${HOME}/.local/bin/starship" ]]; then
             starship_found=1
         fi
     fi
@@ -294,7 +294,7 @@ verify_shell_configuration() {
         neofetch_found=1
     else
         # Si no se encuentra vía command -v, intentar con la ruta directa de instalación local
-        if [[ -x "$HOME/.local/bin/neofetch" ]]; then
+        if [[ -n "${HOME:-}" ]] && [[ -x "${HOME}/.local/bin/neofetch" ]]; then
             neofetch_found=1
         fi
     fi
@@ -319,7 +319,7 @@ verify_shell_configuration() {
         starship_found=1
     else
         # Si no se encuentra vía command -v, intentar con la ruta directa de instalación local
-        if [[ -x "$HOME/.local/bin/starship" ]]; then
+        if [[ -n "${HOME:-}" ]] && [[ -x "${HOME}/.local/bin/starship" ]]; then
             starship_found=1
         fi
     fi
@@ -356,12 +356,14 @@ verify_shell_configuration() {
     fi
 
     # Verificar PATH si hay instalación local
-    local local_bin="$HOME/.local/bin"
-    if [[ -d "$local_bin" ]] && { [[ -f "$local_bin/neofetch" ]] || [[ -f "$local_bin/starship" ]]; }; then
-        if grep -q "$local_bin" "$rc_file" || [[ ":$PATH:" == *":$local_bin:"* ]]; then
-            check_pass "PATH incluye directorio local bin"
-        else
-            check_warn "PATH no incluye $local_bin (podría requerirse reinicio de shell)"
+    if [[ -n "${HOME:-}" ]]; then
+        local local_bin="${HOME}/.local/bin"
+        if [[ -d "$local_bin" ]] && { [[ -f "$local_bin/neofetch" ]] || [[ -f "$local_bin/starship" ]]; }; then
+            if grep -q "$local_bin" "$rc_file" || [[ ":${PATH:-}:" == *":$local_bin:"* ]]; then
+                check_pass "PATH incluye directorio local bin"
+            else
+                check_warn "PATH no incluye $local_bin (podría requerirse reinicio de shell)"
+            fi
         fi
     fi
 }
@@ -373,7 +375,7 @@ verify_configurations() {
 
     log_subheader "Verificando Archivos de Configuración"
 
-    local config_dir="$HOME/.config"
+    local config_dir="${HOME:-/root}/.config"
 
     # Verificar configuración de Neofetch
     local neofetch_found=0
@@ -381,7 +383,7 @@ verify_configurations() {
         neofetch_found=1
     else
         # Si no se encuentra vía command -v, intentar con la ruta directa de instalación local
-        if [[ -x "$HOME/.local/bin/neofetch" ]]; then
+        if [[ -n "${HOME:-}" ]] && [[ -x "${HOME}/.local/bin/neofetch" ]]; then
             neofetch_found=1
         fi
     fi
@@ -408,7 +410,7 @@ verify_configurations() {
         starship_found=1
     else
         # Si no se encuentra vía command -v, intentar con la ruta directa de instalación local
-        if [[ -x "$HOME/.local/bin/starship" ]]; then
+        if [[ -n "${HOME:-}" ]] && [[ -x "${HOME}/.local/bin/starship" ]]; then
             starship_found=1
         fi
     fi
@@ -451,7 +453,7 @@ run_functionality_tests() {
         neofetch_found=1
     else
         # Si no se encuentra vía command -v, intentar con la ruta directa de instalación local
-        if [[ -x "$HOME/.local/bin/neofetch" ]]; then
+        if [[ -n "${HOME:-}" ]] && [[ -x "${HOME}/.local/bin/neofetch" ]]; then
             neofetch_found=1
         fi
     fi
@@ -486,7 +488,7 @@ run_functionality_tests() {
         starship_found=1
     else
         # Si no se encuentra vía command -v, intentar con la ruta directa de instalación local
-        if [[ -x "$HOME/.local/bin/starship" ]]; then
+        if [[ -n "${HOME:-}" ]] && [[ -x "${HOME}/.local/bin/starship" ]]; then
             starship_found=1
         fi
     fi
@@ -555,15 +557,15 @@ verify_permissions() {
     local neofetch_found=0
     if command -v neofetch >/dev/null 2>&1; then
         neofetch_found=1
-    elif [[ -x "$HOME/.local/bin/neofetch" ]]; then
+    elif [[ -n "${HOME:-}" ]] && [[ -x "${HOME}/.local/bin/neofetch" ]]; then
         neofetch_found=1
     fi
     if [[ $neofetch_found -eq 1 ]]; then
         local neofetch_path
         neofetch_path=$(command -v neofetch 2>/dev/null || echo "")
         # Si command -v no encuentra la ruta, usar la ubicación estándar
-        if [[ -z "$neofetch_path" ]]; then
-            neofetch_path="$HOME/.local/bin/neofetch"
+        if [[ -z "$neofetch_path" ]] && [[ -n "${HOME:-}" ]]; then
+            neofetch_path="${HOME}/.local/bin/neofetch"
         fi
 
         if [[ -x "$neofetch_path" ]]; then
@@ -576,15 +578,15 @@ verify_permissions() {
     local starship_found=0
     if command -v starship >/dev/null 2>&1; then
         starship_found=1
-    elif [[ -x "$HOME/.local/bin/starship" ]]; then
+    elif [[ -n "${HOME:-}" ]] && [[ -x "${HOME}/.local/bin/starship" ]]; then
         starship_found=1
     fi
     if [[ $starship_found -eq 1 ]]; then
         local starship_path
         starship_path=$(command -v starship 2>/dev/null || echo "")
         # Si command -v no encuentra la ruta, usar la ubicación estándar
-        if [[ -z "$starship_path" ]]; then
-            starship_path="$HOME/.local/bin/starship"
+        if [[ -z "$starship_path" ]] && [[ -n "${HOME:-}" ]]; then
+            starship_path="${HOME}/.local/bin/starship"
         fi
 
         if [[ -x "$starship_path" ]]; then
@@ -804,9 +806,11 @@ parse_arguments() {
 # Agregar rutas comunes de instalación local al PATH para asegurar que la verificación funcione
 # Esto incluye tanto la ruta estándar como rutas específicas de entornos CI
 # Las agregamos siempre al inicio del PATH para prioridad alta, sin verificar primero si ya están
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="/github/home/.local/bin:$PATH"  # Ruta específica para entornos CI de GitHub Actions
-export PATH="/home/runner/.local/bin:$PATH"  # Ruta específica para entornos CI de GitHub Actions con runner
+if [[ -n "${HOME:-}" ]]; then
+    export PATH="${HOME}/.local/bin:${PATH:-}"
+fi
+export PATH="/github/home/.local/bin:${PATH:-}"  # Ruta específica para entornos CI de GitHub Actions
+export PATH="/home/runner/.local/bin:${PATH:-}"  # Ruta específica para entornos CI de GitHub Actions con runner
 
 # Función auxiliar para encontrar comandos en múltiples ubicaciones posibles
 find_command_path() {
@@ -824,13 +828,17 @@ find_command_path() {
     # Si no se encuentra, buscar en ubicaciones comunes donde se instalan localmente
     # Incluyendo rutas comunes de instalación local en diferentes entornos
     local local_paths=(
-        "$HOME/.local/bin/$cmd"
-        "$HOME/.local/bin/$cmd.exe"
         "/github/home/.local/bin/$cmd"   # Ruta específica para entornos CI de GitHub Actions con HOME=/github/home
         "/home/runner/.local/bin/$cmd"   # Ruta específica para entornos CI de GitHub Actions con HOME=/home/runner
         "/usr/local/bin/$cmd"
         "/usr/bin/$cmd"
     )
+
+    # Agregar rutas de HOME si está definido
+    if [[ -n "${HOME:-}" ]]; then
+        local_paths+=("${HOME}/.local/bin/$cmd")
+        local_paths+=("${HOME}/.local/bin/$cmd.exe")
+    fi
 
     for cmd_path in "${local_paths[@]}"; do
         if [[ -x "$cmd_path" ]]; then
