@@ -9,6 +9,11 @@
 
 set -eo pipefail  # Exit on error, pipe failures (nounset disabled para soportar ejecución vía pipe)
 
+# Debug temporal para diagnosticar exit code 1
+echo "[INIT] Script iniciando..." >&2
+echo "[INIT] Bash version: $BASH_VERSION" >&2
+echo "[INIT] PWD: $(pwd)" >&2
+
 # ==============================================================================
 # Configuración Global
 # ==============================================================================
@@ -24,13 +29,22 @@ else
 fi
 
 LIB_DIR="${SCRIPT_DIR}/lib"
+echo "[INIT] SCRIPT_DIR: $SCRIPT_DIR" >&2
+echo "[INIT] LIB_DIR: $LIB_DIR" >&2
 
 # Intentar cargar bibliotecas si existen, sino usar funciones inline
 if [[ -f "${LIB_DIR}/colors.sh" && -f "${LIB_DIR}/logger.sh" && -f "${LIB_DIR}/utils.sh" ]]; then
     # Modo repositorio - cargar bibliotecas
+    echo "[INIT] Cargando bibliotecas..." >&2
+    echo "[INIT] Cargando colors.sh..." >&2
     source "${LIB_DIR}/colors.sh"
+    echo "[INIT] colors.sh cargado OK" >&2
+    echo "[INIT] Cargando logger.sh..." >&2
     source "${LIB_DIR}/logger.sh"
+    echo "[INIT] logger.sh cargado OK" >&2
+    echo "[INIT] Cargando utils.sh..." >&2
     source "${LIB_DIR}/utils.sh"
+    echo "[INIT] utils.sh cargado OK" >&2
 else
     # Modo standalone - definir funciones críticas inline
     echo "⚠️  Ejecutando en modo standalone (sin bibliotecas lib/)"
@@ -1137,4 +1151,5 @@ main() {
 }
 
 # Ejecutar main con todos los argumentos
+echo "[INIT] Inicialización completada, ejecutando main..." >&2
 main "$@"
