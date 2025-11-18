@@ -98,13 +98,19 @@ verify_neofetch_installation() {
     # Esto se hace antes de verificar la existencia para asegurar que el PATH esté actualizado
     local local_bin_paths=("$HOME/.local/bin" "/github/home/.local/bin" "/home/runner/.local/bin")
     for bin_path in "${local_bin_paths[@]}"; do
-        # Añadir la ruta al PATH si no está ya y el binario existe
-        if [[ -n "$bin_path" ]] && [[ -d "$bin_path" ]] && [[ -x "$bin_path/neofetch" ]]; then
-            if [[ ":$PATH:" != *":$bin_path:"* ]]; then
-                # Safety check to ensure bin_path is a valid path before adding to PATH
-                PATH="$bin_path:$PATH"
+        # Safety check: ensure bin_path is not empty
+        if [[ -n "$bin_path" ]]; then
+            # Añadir la ruta al PATH si no está ya y el binario existe
+            if [[ -d "$bin_path" ]] && [[ -x "$bin_path/neofetch" ]]; then
+                # Properly quote the PATH check to avoid globbing issues
+                local path_check=":$PATH:"
+                local bin_check=":$bin_path:"
+                if [[ "$path_check" != *"$bin_check"* ]]; then
+                    # Safety check to ensure bin_path is a valid path before adding to PATH
+                    PATH="$bin_path:$PATH"
+                fi
+                break  # Solo añadir la primera coincidencia encontrada
             fi
-            break  # Solo añadir la primera coincidencia encontrada
         fi
     done
 
@@ -181,13 +187,19 @@ verify_starship_installation() {
     # Esto se hace antes de verificar la existencia para asegurar que el PATH esté actualizado
     local local_bin_paths=("$HOME/.local/bin" "/github/home/.local/bin" "/home/runner/.local/bin")
     for bin_path in "${local_bin_paths[@]}"; do
-        # Añadir la ruta al PATH si no está ya y el binario existe
-        if [[ -n "$bin_path" ]] && [[ -d "$bin_path" ]] && [[ -x "$bin_path/starship" ]]; then
-            if [[ ":$PATH:" != *":$bin_path:"* ]]; then
-                # Safety check to ensure bin_path is a valid path before adding to PATH
-                PATH="$bin_path:$PATH"
+        # Safety check: ensure bin_path is not empty
+        if [[ -n "$bin_path" ]]; then
+            # Añadir la ruta al PATH si no está ya y el binario existe
+            if [[ -d "$bin_path" ]] && [[ -x "$bin_path/starship" ]]; then
+                # Properly quote the PATH check to avoid globbing issues
+                local path_check=":$PATH:"
+                local bin_check=":$bin_path:"
+                if [[ "$path_check" != *"$bin_check"* ]]; then
+                    # Safety check to ensure bin_path is a valid path before adding to PATH
+                    PATH="$bin_path:$PATH"
+                fi
+                break  # Solo añadir la primera coincidencia encontrada
             fi
-            break  # Solo añadir la primera coincidencia encontrada
         fi
     done
 
