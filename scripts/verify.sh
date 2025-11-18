@@ -611,7 +611,8 @@ find_command_path() {
     local local_paths=(
         "$HOME/.local/bin/$cmd"
         "$HOME/.local/bin/$cmd.exe"
-        "/home/runner/.local/bin/$cmd"  # Ruta específica para entornos CI de GitHub Actions
+        "/github/home/.local/bin/$cmd"   # Ruta específica para entornos CI de GitHub Actions con HOME=/github/home
+        "/home/runner/.local/bin/$cmd"   # Ruta específica para otros entornos CI de GitHub Actions
         "/usr/local/bin/$cmd"
         "/usr/bin/$cmd"
     )
