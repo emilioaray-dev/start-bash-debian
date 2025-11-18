@@ -17,13 +17,16 @@ LOG_DIR="${LOG_DIR:-/tmp}"
 LOG_FILE="${LOG_DIR}/setup_terminal_$(date +%Y%m%d_%H%M%S).log"
 LOG_LEVEL="${LOG_LEVEL:-INFO}"  # DEBUG, INFO, WARN, ERROR
 
-# Niveles de log
-declare -A LOG_LEVELS=(
-    [DEBUG]=0
-    [INFO]=1
-    [WARN]=2
-    [ERROR]=3
-)
+# Función helper para obtener nivel numérico (compatible con bash 3.2+)
+get_log_level_value() {
+    case "$1" in
+        DEBUG) echo 0 ;;
+        INFO)  echo 1 ;;
+        WARN)  echo 2 ;;
+        ERROR) echo 3 ;;
+        *)     echo 1 ;;  # Default INFO
+    esac
+}
 
 # Inicializar sistema de logging
 init_logger() {
@@ -61,8 +64,13 @@ _log() {
     local timestamp
     timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 
-    # Verificar si el nivel es suficiente para loguear
-    if [[ ${LOG_LEVELS[$level]} -ge ${LOG_LEVELS[$LOG_LEVEL]} ]]; then
+    # Verificar si el nivel es suficiente para loguear (compatible bash 3.2+)
+    local level_value
+    local current_level_value
+    level_value=$(get_log_level_value "$level")
+    current_level_value=$(get_log_level_value "$LOG_LEVEL")
+
+    if [[ $level_value -ge $current_level_value ]]; then
         # Escribir al archivo de log
         echo "[$timestamp] [$level] $message" >> "$LOG_FILE"
     fi
