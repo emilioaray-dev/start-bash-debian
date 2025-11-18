@@ -94,6 +94,19 @@ verify_system_info() {
 verify_neofetch_installation() {
     log_subheader "Verificando Neofetch"
 
+    # Pre-actualizar PATH dinámicamente si los comandos están disponibles localmente
+    # Esto se hace antes de verificar la existencia para asegurar que el PATH esté actualizado
+    local local_bin_paths=("$HOME/.local/bin" "/github/home/.local/bin" "/home/runner/.local/bin")
+    for bin_path in "${local_bin_paths[@]}"; do
+        if [[ -x "$bin_path/neofetch" ]]; then
+            # Añadir la ruta al PATH si no está ya
+            if [[ ":$PATH:" != *":$bin_path:"* ]]; then
+                export PATH="$bin_path:$PATH"
+            fi
+            break  # Solo añadir la primera coincidencia encontrada
+        fi
+    done
+
     # Verificar si está instalado y se puede ejecutar
     if command_exists_enhanced neofetch; then
         local version
@@ -146,6 +159,19 @@ verify_neofetch_installation() {
 
 verify_starship_installation() {
     log_subheader "Verificando Starship"
+
+    # Pre-actualizar PATH dinámicamente si los comandos están disponibles localmente
+    # Esto se hace antes de verificar la existencia para asegurar que el PATH esté actualizado
+    local local_bin_paths=("$HOME/.local/bin" "/github/home/.local/bin" "/home/runner/.local/bin")
+    for bin_path in "${local_bin_paths[@]}"; do
+        if [[ -x "$bin_path/starship" ]]; then
+            # Añadir la ruta al PATH si no está ya
+            if [[ ":$PATH:" != *":$bin_path:"* ]]; then
+                export PATH="$bin_path:$PATH"
+            fi
+            break  # Solo añadir la primera coincidencia encontrada
+        fi
+    done
 
     # Verificar si está instalado y se puede ejecutar
     if command_exists_enhanced starship; then
