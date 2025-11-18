@@ -216,7 +216,7 @@ else
         local description="$1"
         shift
         log_debug "Ejecutando: $*"
-        if eval "$@"; then
+        if "$@"; then
             log_debug "✓ $description"
             return 0
         else
@@ -275,7 +275,6 @@ INSTALL_NEOFETCH=true
 INSTALL_STARSHIP=true
 
 # Directorios según modo de instalación
-SYSTEM_BIN_DIR="/usr/local/bin"
 LOCAL_BIN_DIR="$HOME/.local/bin"
 CONFIG_DIR="$HOME/.config"
 
@@ -970,8 +969,8 @@ run_installation() {
     # Verificar distribución/OS
     if is_macos; then
         log_info "Sistema detectado: macOS $(get_distro_version)"
-        # En macOS, forzar modo local si no se especificó system
-        if [[ "$INSTALL_MODE" == "system" && ! "$*" =~ "--system" ]]; then
+        # En macOS, usar Homebrew para instalación
+        if [[ "$INSTALL_MODE" == "system" ]]; then
             log_info "Usando Homebrew para instalación en macOS"
         fi
     elif ! is_debian_based; then
@@ -1110,6 +1109,7 @@ parse_arguments() {
                 shift
                 ;;
             -c|--config)
+                # shellcheck disable=SC2034  # Reserved for future use
                 CUSTOM_CONFIG="$2"
                 shift 2
                 ;;

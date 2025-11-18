@@ -779,7 +779,7 @@ parse_arguments() {
                 ;;
             -v|--verbose)
                 VERBOSE=true
-                LOG_LEVEL="DEBUG"
+                export LOG_LEVEL="DEBUG"
                 shift
                 ;;
             -h|--help)

@@ -215,7 +215,6 @@ print_log_summary() {
 # Limpiar logs antiguos (mantener últimos N días)
 cleanup_old_logs() {
     local days="${1:-7}"
-    local log_pattern="${LOG_DIR}/setup_terminal_*.log"
 
     if [[ -d "$LOG_DIR" ]]; then
         find "$LOG_DIR" -name "setup_terminal_*.log" -type f -mtime +"$days" -delete 2>/dev/null
