@@ -517,17 +517,19 @@ check_for_issues() {
     # Verificar conflictos de PATH - more resilient approach
     local neofetch_count=0
     # Count neofetch binaries in PATH without potentially failing find commands
-    while IFS=':' read -ra PATHS <<< "$PATH"; do
-        for dir in "${PATHS[@]}"; do
-            # Skip empty paths
-            [[ -z "$dir" ]] && continue
-            # Check if directory exists and is readable
-            if [[ -d "$dir" && -r "$dir" ]]; then
-                if [[ -x "$dir/neofetch" ]]; then
-                    ((neofetch_count++))
-                fi
+    local IFS=':'  # Change field separator temporarily
+    local path_dirs=($PATH)  # Split PATH into array
+    unset IFS  # Restore default field separator
+
+    for dir in "${path_dirs[@]}"; do
+        # Skip empty paths
+        [[ -z "$dir" ]] && continue
+        # Check if directory exists and is readable
+        if [[ -d "$dir" && -r "$dir" ]]; then
+            if [[ -x "$dir/neofetch" ]]; then
+                ((neofetch_count++))
             fi
-        done
+        fi
     done
 
     if [[ $neofetch_count -gt 1 ]]; then
@@ -536,17 +538,19 @@ check_for_issues() {
 
     local starship_count=0
     # Count starship binaries in PATH without potentially failing find commands
-    while IFS=':' read -ra PATHS <<< "$PATH"; do
-        for dir in "${PATHS[@]}"; do
-            # Skip empty paths
-            [[ -z "$dir" ]] && continue
-            # Check if directory exists and is readable
-            if [[ -d "$dir" && -r "$dir" ]]; then
-                if [[ -x "$dir/starship" ]]; then
-                    ((starship_count++))
-                fi
+    local IFS=':'  # Change field separator temporarily
+    local path_dirs=($PATH)  # Split PATH into array
+    unset IFS  # Restore default field separator
+
+    for dir in "${path_dirs[@]}"; do
+        # Skip empty paths
+        [[ -z "$dir" ]] && continue
+        # Check if directory exists and is readable
+        if [[ -d "$dir" && -r "$dir" ]]; then
+            if [[ -x "$dir/starship" ]]; then
+                ((starship_count++))
             fi
-        done
+        fi
     done
 
     if [[ $starship_count -gt 1 ]]; then
