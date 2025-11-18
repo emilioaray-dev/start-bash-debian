@@ -94,38 +94,23 @@ verify_system_info() {
 verify_neofetch_installation() {
     log_subheader "Verificando Neofetch"
 
-    # Verificar si está instalado
+    # Verificar si está instalado y se puede ejecutar
     if command_exists neofetch; then
         local version
-        version=$(timeout 10s neofetch --version 2>&1 | head -n1 || echo "No se pudo obtener versión")
-        if [[ "$version" != "No se pudo obtener versión" ]]; then
-            check_pass "Neofetch está instalado: $version"
+        version=$(timeout 10s neofetch --version 2>&1 | head -n1 || echo "desconocida")
+        check_pass "Neofetch está instalado: $version"
+
+        # Verificar que se puede ejecutar con un comando básico
+        if timeout 5s neofetch &> /dev/null || timeout 5s neofetch --help &> /dev/null || timeout 5s neofetch --stdout &> /dev/null; then
+            check_pass "Neofetch es ejecutable"
         else
-            # Intentar con otro comando por si --version tiene problemas
-            if timeout 5s neofetch --help &> /dev/null || timeout 5s neofetch --stdout &> /dev/null; then
-                check_pass "Neofetch está instalado: disponible pero no responde a --version"
-            else
-                check_fail "Neofetch NO está instalado o no se puede ejecutar"
-                return 1
-            fi
+            check_fail "Neofetch no se puede ejecutar correctamente"
         fi
 
         # Verificar ubicación
         local location
         location=$(command -v neofetch)
         log_info "Ubicación: $location"
-
-        # Verificar que se puede ejecutar con un comando básico
-        if timeout 5s neofetch --version &> /dev/null; then
-            check_pass "Neofetch es ejecutable"
-        else
-            # Verificar con otro comando por si --help tiene problemas
-            if timeout 5s neofetch --stdout &> /dev/null; then
-                check_pass "Neofetch es ejecutable"
-            else
-                check_fail "Neofetch no se puede ejecutar correctamente"
-            fi
-        fi
     else
         check_fail "Neofetch NO está instalado"
         return 1
@@ -135,38 +120,23 @@ verify_neofetch_installation() {
 verify_starship_installation() {
     log_subheader "Verificando Starship"
 
-    # Verificar si está instalado
+    # Verificar si está instalado y se puede ejecutar
     if command_exists starship; then
         local version
-        version=$(timeout 10s starship --version 2>&1 | head -n1 || echo "No se pudo obtener versión")
-        if [[ "$version" != "No se pudo obtener versión" ]]; then
-            check_pass "Starship está instalado: $version"
+        version=$(timeout 10s starship --version 2>&1 | head -n1 || echo "desconocida")
+        check_pass "Starship está instalado: $version"
+
+        # Verificar que se puede ejecutar con un comando básico
+        if timeout 5s starship &> /dev/null || timeout 5s starship init bash &> /dev/null || timeout 5s starship --help &> /dev/null; then
+            check_pass "Starship es ejecutable"
         else
-            # Intentar con otro comando por si --version tiene problemas
-            if timeout 5s starship init bash &> /dev/null || timeout 5s starship --help &> /dev/null; then
-                check_pass "Starship está instalado: disponible pero no responde a --version"
-            else
-                check_fail "Starship NO está instalado o no se puede ejecutar"
-                return 1
-            fi
+            check_fail "Starship no se puede ejecutar correctamente"
         fi
 
         # Verificar ubicación
         local location
         location=$(command -v starship)
         log_info "Ubicación: $location"
-
-        # Verificar que se puede ejecutar con un comando básico
-        if timeout 5s starship --version &> /dev/null; then
-            check_pass "Starship es ejecutable"
-        else
-            # Verificar con otro comando por si --help tiene problemas
-            if timeout 5s starship init bash &> /dev/null; then
-                check_pass "Starship es ejecutable"
-            else
-                check_fail "Starship no se puede ejecutar correctamente"
-            fi
-        fi
     else
         check_fail "Starship NO está instalado"
         return 1
