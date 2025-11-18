@@ -99,9 +99,10 @@ verify_neofetch_installation() {
     local local_bin_paths=("$HOME/.local/bin" "/github/home/.local/bin" "/home/runner/.local/bin")
     for bin_path in "${local_bin_paths[@]}"; do
         # Añadir la ruta al PATH si no está ya y el binario existe
-        if [[ -d "$bin_path" ]] && [[ -x "$bin_path/neofetch" ]]; then
+        if [[ -n "$bin_path" ]] && [[ -d "$bin_path" ]] && [[ -x "$bin_path/neofetch" ]]; then
             if [[ ":$PATH:" != *":$bin_path:"* ]]; then
-                export PATH="$bin_path:$PATH"
+                # Safety check to ensure bin_path is a valid path before adding to PATH
+                PATH="$bin_path:$PATH"
             fi
             break  # Solo añadir la primera coincidencia encontrada
         fi
@@ -181,9 +182,10 @@ verify_starship_installation() {
     local local_bin_paths=("$HOME/.local/bin" "/github/home/.local/bin" "/home/runner/.local/bin")
     for bin_path in "${local_bin_paths[@]}"; do
         # Añadir la ruta al PATH si no está ya y el binario existe
-        if [[ -d "$bin_path" ]] && [[ -x "$bin_path/starship" ]]; then
+        if [[ -n "$bin_path" ]] && [[ -d "$bin_path" ]] && [[ -x "$bin_path/starship" ]]; then
             if [[ ":$PATH:" != *":$bin_path:"* ]]; then
-                export PATH="$bin_path:$PATH"
+                # Safety check to ensure bin_path is a valid path before adding to PATH
+                PATH="$bin_path:$PATH"
             fi
             break  # Solo añadir la primera coincidencia encontrada
         fi
