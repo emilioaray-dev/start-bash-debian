@@ -175,7 +175,7 @@ verify_neofetch_installation() {
 
         # Verificar ubicación
         local location
-        location=$(command -v neofetch)
+        location=$(command -v neofetch 2>/dev/null || echo "$local_neofetch_path")
         log_info "Ubicación: $location"
     else
         check_fail "Neofetch NO está instalado"
@@ -266,7 +266,7 @@ verify_starship_installation() {
 
         # Verificar ubicación
         local location
-        location=$(command -v starship)
+        location=$(command -v starship 2>/dev/null || echo "$local_starship_path")
         log_info "Ubicación: $location"
     else
         check_fail "Starship NO está instalado"
