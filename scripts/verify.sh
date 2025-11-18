@@ -116,7 +116,8 @@ verify_neofetch_installation() {
 
     # Verificar si está instalado y se puede ejecutar
     local neofetch_found=0
-    if command_exists_enhanced neofetch 2>/dev/null || { command -v neofetch >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+    # Use the most basic and safe method to check for command existence
+    if command -v neofetch >/dev/null 2>&1; then
         neofetch_found=1
     fi
 
@@ -205,7 +206,8 @@ verify_starship_installation() {
 
     # Verificar si está instalado y se puede ejecutar
     local starship_found=0
-    if command_exists_enhanced starship 2>/dev/null || { command -v starship >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+    # Use the most basic and safe method to check for command existence
+    if command -v starship >/dev/null 2>&1; then
         starship_found=1
     fi
 
@@ -284,7 +286,7 @@ verify_shell_configuration() {
 
     # Verificar Neofetch en RC
     local neofetch_found=0
-    if command_exists_enhanced neofetch 2>/dev/null || { command -v neofetch >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+    if command -v neofetch >/dev/null 2>&1; then
         neofetch_found=1
     fi
     if [[ $neofetch_found -eq 1 ]]; then
@@ -304,7 +306,7 @@ verify_shell_configuration() {
 
     # Verificar Starship en RC
     local starship_found=0
-    if command_exists_enhanced starship 2>/dev/null || { command -v starship >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+    if command -v starship >/dev/null 2>&1; then
         starship_found=1
     fi
     if [[ $starship_found -eq 1 ]]; then
@@ -361,7 +363,7 @@ verify_configurations() {
 
     # Verificar configuración de Neofetch
     local neofetch_found=0
-    if command_exists_enhanced neofetch 2>/dev/null || { command -v neofetch >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+    if command -v neofetch >/dev/null 2>&1; then
         neofetch_found=1
     fi
     if [[ $neofetch_found -eq 1 ]]; then
@@ -383,7 +385,7 @@ verify_configurations() {
 
     # Verificar configuración de Starship
     local starship_found=0
-    if command_exists_enhanced starship 2>/dev/null || { command -v starship >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+    if command -v starship >/dev/null 2>&1; then
         starship_found=1
     fi
     if [[ $starship_found -eq 1 ]]; then
@@ -421,7 +423,7 @@ run_functionality_tests() {
 
     # Test Neofetch
     local neofetch_found=0
-    if command_exists_enhanced neofetch 2>/dev/null || { command -v neofetch >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+    if command -v neofetch >/dev/null 2>&1; then
         neofetch_found=1
     fi
     if [[ $neofetch_found -eq 1 ]]; then
@@ -451,7 +453,7 @@ run_functionality_tests() {
 
     # Test Starship
     local starship_found=0
-    if command_exists_enhanced starship 2>/dev/null || { command -v starship >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+    if command -v starship >/dev/null 2>&1; then
         starship_found=1
     fi
     if [[ $starship_found -eq 1 ]]; then
