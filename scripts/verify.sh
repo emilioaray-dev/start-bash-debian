@@ -105,11 +105,16 @@ verify_neofetch_installation() {
         location=$(command -v neofetch)
         log_info "Ubicación: $location"
 
-        # Verificar que se puede ejecutar
-        if neofetch --help &> /dev/null; then
+        # Verificar que se puede ejecutar con un comando básico
+        if timeout 5s neofetch --version &> /dev/null; then
             check_pass "Neofetch es ejecutable"
         else
-            check_fail "Neofetch no se puede ejecutar correctamente"
+            # Verificar con otro comando por si --help tiene problemas
+            if timeout 5s neofetch --stdout &> /dev/null; then
+                check_pass "Neofetch es ejecutable"
+            else
+                check_fail "Neofetch no se puede ejecutar correctamente"
+            fi
         fi
     else
         check_fail "Neofetch NO está instalado"
@@ -131,11 +136,16 @@ verify_starship_installation() {
         location=$(command -v starship)
         log_info "Ubicación: $location"
 
-        # Verificar que se puede ejecutar
-        if starship --help &> /dev/null; then
+        # Verificar que se puede ejecutar con un comando básico
+        if timeout 5s starship --version &> /dev/null; then
             check_pass "Starship es ejecutable"
         else
-            check_fail "Starship no se puede ejecutar correctamente"
+            # Verificar con otro comando por si --help tiene problemas
+            if timeout 5s starship init bash &> /dev/null; then
+                check_pass "Starship es ejecutable"
+            else
+                check_fail "Starship no se puede ejecutar correctamente"
+            fi
         fi
     else
         check_fail "Starship NO está instalado"
