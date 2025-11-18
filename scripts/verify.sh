@@ -97,8 +97,18 @@ verify_neofetch_installation() {
     # Verificar si está instalado
     if command_exists neofetch; then
         local version
-        version=$(neofetch --version 2>&1 | head -n1 || echo "desconocida")
-        check_pass "Neofetch está instalado: $version"
+        version=$(timeout 10s neofetch --version 2>&1 | head -n1 || echo "No se pudo obtener versión")
+        if [[ "$version" != "No se pudo obtener versión" ]]; then
+            check_pass "Neofetch está instalado: $version"
+        else
+            # Intentar con otro comando por si --version tiene problemas
+            if timeout 5s neofetch --help &> /dev/null || timeout 5s neofetch --stdout &> /dev/null; then
+                check_pass "Neofetch está instalado: disponible pero no responde a --version"
+            else
+                check_fail "Neofetch NO está instalado o no se puede ejecutar"
+                return 1
+            fi
+        fi
 
         # Verificar ubicación
         local location
@@ -128,8 +138,18 @@ verify_starship_installation() {
     # Verificar si está instalado
     if command_exists starship; then
         local version
-        version=$(starship --version 2>&1 | head -n1 || echo "desconocida")
-        check_pass "Starship está instalado: $version"
+        version=$(timeout 10s starship --version 2>&1 | head -n1 || echo "No se pudo obtener versión")
+        if [[ "$version" != "No se pudo obtener versión" ]]; then
+            check_pass "Starship está instalado: $version"
+        else
+            # Intentar con otro comando por si --version tiene problemas
+            if timeout 5s starship init bash &> /dev/null || timeout 5s starship --help &> /dev/null; then
+                check_pass "Starship está instalado: disponible pero no responde a --version"
+            else
+                check_fail "Starship NO está instalado o no se puede ejecutar"
+                return 1
+            fi
+        fi
 
         # Verificar ubicación
         local location
