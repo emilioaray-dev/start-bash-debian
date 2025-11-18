@@ -108,7 +108,12 @@ verify_neofetch_installation() {
     done
 
     # Verificar si está instalado y se puede ejecutar
-    if command_exists_enhanced neofetch; then
+    local neofetch_found=0
+    if command_exists_enhanced neofetch 2>/dev/null || { command -v neofetch >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+        neofetch_found=1
+    fi
+
+    if [[ $neofetch_found -eq 1 ]]; then
         local version=""
         # Verificar si timeout está disponible
         if command -v timeout &> /dev/null; then
@@ -185,7 +190,12 @@ verify_starship_installation() {
     done
 
     # Verificar si está instalado y se puede ejecutar
-    if command_exists_enhanced starship; then
+    local starship_found=0
+    if command_exists_enhanced starship 2>/dev/null || { command -v starship >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+        starship_found=1
+    fi
+
+    if [[ $starship_found -eq 1 ]]; then
         local version=""
         # Verificar si timeout está disponible
         if command -v timeout &> /dev/null; then
@@ -259,7 +269,11 @@ verify_shell_configuration() {
     fi
 
     # Verificar Neofetch en RC
-    if command_exists_enhanced neofetch; then
+    local neofetch_found=0
+    if command_exists_enhanced neofetch 2>/dev/null || { command -v neofetch >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+        neofetch_found=1
+    fi
+    if [[ $neofetch_found -eq 1 ]]; then
         if grep -q "neofetch" "$rc_file"; then
             check_pass "Neofetch configurado en shell"
 
@@ -275,7 +289,11 @@ verify_shell_configuration() {
     fi
 
     # Verificar Starship en RC
-    if command_exists_enhanced starship; then
+    local starship_found=0
+    if command_exists_enhanced starship 2>/dev/null || { command -v starship >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+        starship_found=1
+    fi
+    if [[ $starship_found -eq 1 ]]; then
         local shell
         shell=$(get_user_shell)
 
@@ -328,7 +346,11 @@ verify_configurations() {
     local config_dir="$HOME/.config"
 
     # Verificar configuración de Neofetch
-    if command_exists_enhanced neofetch; then
+    local neofetch_found=0
+    if command_exists_enhanced neofetch 2>/dev/null || { command -v neofetch >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+        neofetch_found=1
+    fi
+    if [[ $neofetch_found -eq 1 ]]; then
         local neofetch_config="$config_dir/neofetch/config.conf"
 
         if [[ -f "$neofetch_config" ]]; then
@@ -346,7 +368,11 @@ verify_configurations() {
     fi
 
     # Verificar configuración de Starship
-    if command_exists_enhanced starship; then
+    local starship_found=0
+    if command_exists_enhanced starship 2>/dev/null || { command -v starship >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+        starship_found=1
+    fi
+    if [[ $starship_found -eq 1 ]]; then
         local starship_config="$config_dir/starship.toml"
 
         if [[ -f "$starship_config" ]]; then
@@ -380,7 +406,11 @@ run_functionality_tests() {
     log_subheader "Ejecutando Tests de Funcionalidad"
 
     # Test Neofetch
-    if command_exists_enhanced neofetch; then
+    local neofetch_found=0
+    if command_exists_enhanced neofetch 2>/dev/null || { command -v neofetch >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+        neofetch_found=1
+    fi
+    if [[ $neofetch_found -eq 1 ]]; then
         log_step "Ejecutando Neofetch..."
 
         if command -v timeout &> /dev/null; then
@@ -406,7 +436,11 @@ run_functionality_tests() {
     fi
 
     # Test Starship
-    if command_exists_enhanced starship; then
+    local starship_found=0
+    if command_exists_enhanced starship 2>/dev/null || { command -v starship >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+        starship_found=1
+    fi
+    if [[ $starship_found -eq 1 ]]; then
         log_step "Probando Starship..."
 
         # Verificar que puede generar prompt
@@ -468,9 +502,13 @@ verify_permissions() {
     log_subheader "Verificando Permisos"
 
     # Verificar permisos de binarios
-    if command_exists neofetch; then
+    local neofetch_found=0
+    if command_exists neofetch 2>/dev/null || { command -v neofetch >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+        neofetch_found=1
+    fi
+    if [[ $neofetch_found -eq 1 ]]; then
         local neofetch_path
-        neofetch_path=$(command -v neofetch)
+        neofetch_path=$(command -v neofetch 2>/dev/null || echo "")
 
         if [[ -x "$neofetch_path" ]]; then
             check_pass "Neofetch tiene permisos de ejecución"
@@ -479,9 +517,13 @@ verify_permissions() {
         fi
     fi
 
-    if command_exists starship; then
+    local starship_found=0
+    if command_exists starship 2>/dev/null || { command -v starship >/dev/null 2>&1; [ $? -eq 0 ]; }; then
+        starship_found=1
+    fi
+    if [[ $starship_found -eq 1 ]]; then
         local starship_path
-        starship_path=$(command -v starship)
+        starship_path=$(command -v starship 2>/dev/null || echo "")
 
         if [[ -x "$starship_path" ]]; then
             check_pass "Starship tiene permisos de ejecución"
